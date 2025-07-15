@@ -20,6 +20,13 @@ The boot manager controls the main booting system.
 It gives the user the chance to boot the operating system, or enter a safe mode for debugging.
 If the user chooses regular boot, then the kernel is loaded into memory.
 
+Safe mode will not load the kernel immediatly.
+If this option is selected, then the user will enter a command line built into the same file as the boot manager, where they can select what to load with each individual action being logged.
+The commands are:
+- load: Load the kernel normally, but print every action and then continue into shell
+- state: Display the current system information including what has been loaded
+- loadsafe: Load the kernel safely with minimal parts
+
 ### Kernel
 The kernel of NomadOS controls the functionality of the operating system.
 It primarily serves to load other programs into memory for the user to use.
@@ -61,7 +68,7 @@ It uses functions from the kernel library to get input, and handle commands.
 The shell is very simple and looks for a user program with the same name as the command entered, and then will try and execute that code.
 
 #### User Programs
-User progeams are the useful part of the OS.
+User progams are the useful part of the OS.
 With just a kernel, the operating system can't do anything.
 The user programs allow the user to interact with the operating system and hardware.
 These programs include:
@@ -74,7 +81,7 @@ These programs include:
 - new [Filename]: Create a new file
 - clear: Clear the screen
 
-### Overall Structure on Disk
+### Structure on Disk
 | Sectors      | Purpose               |
 | ------------ | --------------------- |
 | 1            | `boot.asm`            |
@@ -85,10 +92,17 @@ These programs include:
 | 49           | File Index            |
 | 50–100       | File Data Blocks      |
 
-
 ## NobleFS Filesystem
 The entire NomadOS uses a file system stored on the same disk that the OS runs on.
 Sectors 50-100 are assigned to the file system, with 49 being used to store the data about what each file is named, and what sector to find that file in.
 This allows for 50 files with unique names and up to 512 bytes of content per file.
 They can be used to store binary programs, or just store text.
 You can write text files within the OS using write and add programs, but binary programs have to be written in assembly, compiled, and then arranged on the file system before booting.
+
+## Error Codes
+| Code | Meaning                                     |
+|------|---------------------------------------------|
+| 0    | No error, success                           |
+| 1    | User program general non-fatal fail         |
+| 2    | Bootloader disk read failure                |
+| 3    | Bootloader did not load bootmanage properly |
