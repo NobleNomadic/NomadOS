@@ -83,7 +83,7 @@ These programs include:
 
 ### Structure on Disk
 | Sectors      | Purpose               |
-| ------------ | --------------------- |
+|--------------|-----------------------|
 | 1            | `boot.asm`            |
 | 2–5          | `bootmanage.asm`      |
 | 6–12         | `kernel.asm`          |
@@ -104,5 +104,18 @@ You can write text files within the OS using write and add programs, but binary 
 |------|---------------------------------------------|
 | 0    | No error, success                           |
 | 1    | User program general non-fatal fail         |
-| 2    | Bootloader disk read failure                |
-| 3    | Bootloader did not load bootmanage properly |
+| 2    | Bootloader did not load bootmanage properly |
+| 3    | Bootmanage failed to load kernel            |
+
+## Message System
+Nomad OS has a specific format for printing messages.
+When the system is printing a command it starts with an indicator.
+This indicator determines the type of message.
+
+Indicators:
+| Indicator              | Meaning                                                  |
+|------------------------|----------------------------------------------------------|
+| [*] (message)          | Notification. Neutral alert                              |
+| [+] (message)          | Operation success                                        |
+| [-] (message) (code)   | General error                                            |
+| [!] (message) (code)   | Fatal system error, crash. Sometimes will only be a code |

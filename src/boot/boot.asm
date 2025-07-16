@@ -24,9 +24,9 @@ start:
 
 ; Load the second part of the bootloader from the disk into memory and give it control
 loadBootManage:
-  mov ax, 0x0000      ; Load segment 0x0000
+  mov ax, 0x0000      ; Segment 0x0000
   mov es, ax
-  mov bx, 0x8000      ; Load to 0000:8000 (segment:offset = physical 0x8000)
+  mov bx, 0x8000      ; Load to 0000:9000 (physical 0x9000)
   mov ah, 0x02        ; BIOS: read sectors
   mov al, 4           ; Read 4 sectors
   mov ch, 0           ; Cylinder 0
@@ -47,6 +47,7 @@ loadBootManage:
 
 ; Print a string with color
 ; SI = string pointer, BL = color attribute
+; Uses 0x0A and 0x0D for newline and carriage return
 printString:
   push ax    ; Push used registers to stack
   push bx
@@ -103,7 +104,7 @@ hang:
 
 ; DATA SECTION
 msg db "[*] Bootable device found", STREND
-diskErr db "[-] Disk read failed", STREND
+diskErr db "[!] Disk read failed - 2", STREND
 
 ; Boot signature
 times 510 - ($ - $$) db 0
