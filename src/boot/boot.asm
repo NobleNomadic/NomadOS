@@ -17,7 +17,6 @@ start:
   int 0x10     ; Call BIOS interupt
   ; Print msg variable
   mov si, msg    ; Load message into SI
-  mov bl, 0x07   ; White color
   call printString
   ; Load the kernel, code should not return from here
   jmp loadBootManage
@@ -41,60 +40,28 @@ loadBootManage:
 ; Handle a failed disk read
 .diskReadFail:
   mov si, diskErr
-  mov bl, 0x04
   call printString
   jmp hang
 
-; Print a string with color
-; SI = string pointer, BL = color attribute
-; Uses 0x0A and 0x0D for newline and carriage return
+; Print a string stored in SI
 printString:
-  push ax    ; Push used registers to stack
-  push bx
-  push cx
-  push dx
+  push ax
   push si
-  
+
 .printLoop:
-  lodsb         ; Load the next character
-  or al, al     ; Check if its a null terminator
-  jz .done      ; Finish and exit function
-  
-  ; Handle newline characters properly
-  cmp al, 0x0D  ; Carriage return
-  je .printChar
-  cmp al, 0x0A  ; Line feed
-  je .printChar
-  
-  ; For normal characters, use write character with attribute
-  mov ah, 0x09  ; BIOS: write character and attribute at cursor
-  mov bh, 0     ; Page number
-  mov cx, 1     ; Number of characters
-  int 0x10      ; Call BIOS interrupt
-  
-  ; Move cursor forward
-  mov ah, 0x03  ; Get cursor position
-  mov bh, 0     ; Page number
-  int 0x10      ; DH = row, DL = column
-  inc dl        ; Move to next column
-  mov ah, 0x02  ; Set cursor position
-  mov bh, 0     ; Page number
+  lodsb
+  or al, al
+  jz .done
+
+  mov ah, 0x0E
+  mov bh, 0     ; Page number (ignored)
+  mov bl, 0x07  ; Text attribute (ignored by 0x0E)
   int 0x10
-  
+
   jmp .printLoop
 
-.printChar:
-  ; For control characters (newlines), switch to TTY output and print them
-  mov ah, 0x0E  ; BIOS TTY output
-  mov bh, 0     ; Page number
-  int 0x10      ; Call BIOS interrupt
-  jmp .printLoop
-; Done printing at null terminator, pop from stack and return to caller
 .done:
-  pop si        ; Return register state
-  pop dx
-  pop cx
-  pop bx
+  pop si
   pop ax
   ret
 

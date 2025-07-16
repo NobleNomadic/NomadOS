@@ -1,3 +1,4 @@
+; bootmanage.asm - Handle loading the kernel and safe mode
 [bits 16]
 [org 0x8000]
 
@@ -7,7 +8,7 @@ bootManageEntry:
   ; Print boot manage starting message
   mov si, kernelLoadMsg
   mov bl, 0x07
-  call printBootManageString
+  call printString
 
   ; Here the code for choosing normal boot or safe mode would go
   ; For now, skip this and go straight to the kernel
@@ -15,7 +16,7 @@ bootManageEntry:
   ; Load the kernel, don't go back
   jmp loadKernel
 
-; Load Kernel
+; Load Kernel. Start reading from sector 6 (bootloader (1) + bootmanager (5))
 loadKernel:
   mov ax, 0x1000     ; Segment 0x1000
   mov es, ax
@@ -36,55 +37,25 @@ loadKernel:
   ; Print a red error message then jump to hang
   mov si, kernelLoadErr
   mov bl, 0x04
-  call printBootManageString
+  call printString
   jmp hang
 
 ; Bootmanager implementation of print string
-; Identical to boot.asm print function
-printBootManageString:
-  push ax ; Push all registers to stack before starting
-  push bx
-  push cx
-  push dx
+printString:
+  push ax
   push si
 
 .printLoop:
-  lodsb          ; Load the next byte into al
-  or al, al      ; Check for null byte
-  jz .done       ; Conditional jump to done function if finished
-  cmp al, 0x0D   ; Check for carriage return
-  je .printChar  ; Use tty output instead
-  cmp al, 0x0A   ; Check for newline
-  je .printChar  ; Use tty output instead
-
-  mov ah, 0x09   ; Set BIOS print
-  mov bh, 0      ; Set data to print 1 character
-  mov cx, 1
-  int 0x10       ; Call BIOS interupt
-
-  ; Adjust curser position manually after printing character
-  mov ah, 0x03   ; BIOS: Move curser
-  mov bh, 0
-  int 0x10       ; Call first interupt
-  inc dl
-  mov ah, 0x02
-  mov bh, 0
-  int 0x10       ; Final interupt
-
-  ; Run next iteration of the loop
-  jmp .printLoop
-
-.printChar:
+  lodsb
+  or al, al
+  jz .done
   mov ah, 0x0E
-  mov bh, 0
   int 0x10
+
   jmp .printLoop
 
 .done:
   pop si
-  pop dx
-  pop cx
-  pop bx
   pop ax
   ret
 
@@ -93,7 +64,7 @@ hang:
 
 
 ; Data
-kernelLoadMsg db "[*] Loading kernel", STREND     ; Message to show kernel is being loaded
+kernelLoadMsg db "[*] Boot manager starting kernel", STREND         ; Message to show kernel is being loaded
 kernelLoadErr db "[!] Kernel load failed - 3", STREND ; Error message - kernel loading failed
 
 ; Pad Boot Manager to 2048 Bytes (4 sectors)
