@@ -126,10 +126,10 @@ Set **BL** to the syscall you want to make, along with any extra requirements th
 The kernel library is always loaded by the kernel to **0x9000:0x0000**.
 By using the call function on that memory address, everything will be automated for you.
 
-| Syscall number (BL) | Function | Arguments           |
-|---------------------|----------|---------------------|
-| 1                   | Print    | SI: String to print |
-| 2                   | Input    | Output goes to SI   |
+| Syscall number (BL) | Function | Arguments                                               |
+|---------------------|----------|---------------------------------------------------------|
+| 1                   | Print    | SI: String to print                                     |
+| 2                   | Input    | SI: Set to the buffer for output. Output goes to buffer |
 
 ### Example syscall usage
 

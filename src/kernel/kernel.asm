@@ -39,6 +39,14 @@ kernelEntry:
   mov si, kernelTestingSyscallTableMsg ; Message to print argument in SI
   call 0x9000:0x0000                   ; Call code at kernel library location, the kernel library will automatically handle the syscall
 
+  ; Get test input
+  mov byte bl, 2
+  mov si, buffer
+  call 0x9000:0x0000
+
+  mov si, buffer
+  call printKString
+
   ; Final kernel success complete message
   mov si, kernelFullyInitMsg
   call printKString
@@ -132,6 +140,9 @@ kernelReturnAfterLibLoadMsg db "[+] Kernel main code execution returned", STREND
 kernelFullyInitMsg db "[+] Kernel init complete", STREND                         ; Final success message for kernel setup complete
 kernelStartingSyscallTestMsg db "[*] Starting syscall test", STREND              ; Message to show syscall test is starting
 kernelTestingSyscallTableMsg db "[+] Library syscalls test success", STREND      ; Test the syscalls library by printing this string using the kernel library
+
+
+buffer times 256 db 0
 
 ; Pad the kernel to 6 sectors
 times 3072 - ($ - $$) db 0

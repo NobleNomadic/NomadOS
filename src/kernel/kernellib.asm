@@ -29,15 +29,27 @@ kernelLibEntry:
 
 .skipFirstRun:
   ; Compare the value in BL with each syscall number
-  cmp bl, 1                      ; Check if it is the syscall for print (note: bl not byte bl)
+  ; Print syscall
+  cmp bl, 1                      ; Check if it is the syscall for print
   je .handlePrintString          ; Run the handler function
+  ; Input syscall
+  cmp bl, 2                      ; Check BL for input syscall
+  je .handleGetInput             ; Run handler for input
+
+  ; Finish function
   pop ds                         ; Clean up stack before returning
   retf                           ; Far return to return to calling segment
 
+; Handler functions
 .handlePrintString:
   ; Restore the caller's DS so we can access their string
   pop ds
   call printString
+  retf
+
+.handleGetInput:
+  pop ds
+  call getInput
   retf
 
 ; KERNEL LIBRARY SYSCALL FUNCTIONS
@@ -59,7 +71,60 @@ printString:
   pop ax
   ret
 
-; Function for the first run of the kernel library
+
+; Input to get a line of text from the user, and send it back to caller
+getInput:
+  push ax ; Push all used registers to stack
+  push bx
+  push cx
+  push dx
+  push si
+.readChar:
+  ; Read a character with BIOS, echo it, and store in buffer
+  mov ah, 0x00      ; BIOS input
+  int 0x16          ; Wait for keypress
+
+  ; Check for enter
+  cmp al, 0x0D      ; Hex code for enter
+  je .done          ; Finish input
+
+  ; Echo the character to tty
+  mov ah, 0x0E
+  int 0x10
+
+  ; Store output in buffer
+  mov [si], al
+  inc si
+
+  ; Continue loop
+  jmp .readChar
+
+.done:
+  ; Add a carriage return and null terminator manually to the string
+  mov al, 0x0D
+  mov [si], al
+  inc si
+  mov al, 0x0A   ; Carriage return
+  mov [si], al
+  inc si
+  mov al, 0x00   ; Null terminator
+  mov [si], al
+
+  mov ah, 0x0E   ; Manual newline after enter
+  mov al, 0x0D
+  int 0x10
+  mov al, 0x0A
+  int 0x10
+
+  pop si         ; Return used registers and return from function
+  pop dx
+  pop cx
+  pop bx
+  pop ax
+  ret
+
+; First run setup code
+; This code runs when the library is called for the first time to print a debug message
 libraryFirstRunSetup:
   ; Print the message to show that the library has loaded
   mov si, libraryFirstRunMsg
