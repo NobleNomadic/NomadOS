@@ -17,17 +17,38 @@ kernelEntry:
 
   ; Prove kernel reached successfully with print
   mov si, kernelEntryMsg
-  call printString
+  call printKString
 
+  ; Load the kernel library for syscalls
   call loadKernelLibrary
+  ; Reset segment
+  mov ax, 0x1000
+  mov ds, ax
+  mov es, ax
+
+  ; Print message to show library setup
+  mov si, kernelReturnAfterLibLoadMsg
+  call printKString
+
+  ; Print a string using the external syscall system in kernellibrary
+  ; Start with a debug notify message with local printKString
+  mov si, kernelStartingSyscallTestMsg
+  call printKString
+  ; Use library print string
+  mov byte bl, 1                       ; Syscall for print string
+  mov si, kernelTestingSyscallTableMsg ; Message to print argument in SI
+  call 0x9000:0x0000                   ; Call code at kernel library location, the kernel library will automatically handle the syscall
+
+  ; Final kernel success complete message
+  mov si, kernelFullyInitMsg
+  call printKString
   
-  ; After library is loaded, continue with normal kernel operations
-  ; Here would normally start shell or other kernel operations
+  ; After library is loaded and tested, continue with normal kernel operations
+  ; Here would normally start shell or other kernel operations, for now just hang
   jmp hang
 
-
 ; Print function to display string in SI
-printString:
+printKString:
   push ax           ; Push used registers
   push si
 .printLoop:
@@ -49,7 +70,7 @@ loadKernelLibrary:
   je .alreadyLoaded
 
   mov si, kernelLibLoadStartingMsg
-  call printString
+  call printKString
 
   mov ax, 0x9000     ; Segment
   mov es, ax
@@ -62,6 +83,7 @@ loadKernelLibrary:
   mov cl, 13         ; Start from sector 13 (1-indexed)
   mov dh, 0          ; Head 0
   mov dl, 0x00       ; Drive 0 (floppy)
+
   int 0x13           ; Call BIOS interrupt
   
   ; Check carry flag for failure
@@ -71,13 +93,7 @@ loadKernelLibrary:
   mov byte [libraryLoaded], 1
   
   ; Call the library initialization
-  ; Use far call to properly set up segments
   call 0x9000:0x0000
-
-  ; Once returned, prove that code execution is being done by kernel
-  mov si, kernelReturnAfterLibLoadMsg
-  call printString
-
   ret
 
 .alreadyLoaded:
@@ -85,8 +101,7 @@ loadKernelLibrary:
   ret
 
 .kernelLibraryReadFail:
-  mov ah, 0x0E ; Basic tty output
-  mov al, 0x0A ; Newline
+  mov ah, 0x0E ; Basic tty output. If there was an error, calling more functions should be avoided to minimise memory interaction
   int 0x10
   mov al, 0x0D ; Carriage return
   int 0x10
@@ -111,9 +126,12 @@ hang:
 libraryLoaded db 0    ; Keep track of if the library is loaded yet 0 = not loaded, 1 = loaded
 
 ; Strings
-kernelEntryMsg db "[+] Kernel code execution reached", STREND
-kernelLibLoadStartingMsg db "[*] Starting library load from kernel", STREND
-kernelReturnAfterLibLoadMsg db "[+] Kernel main code execution returned", STREND
+kernelEntryMsg db "[+] Kernel code execution reached", STREND                    ; String to prove kernel code is running
+kernelLibLoadStartingMsg db "[*] Starting library load from kernel", STREND      ; Notify that kernel library function is running
+kernelReturnAfterLibLoadMsg db "[+] Kernel main code execution returned", STREND ; Success, the library was loaded and code execution returned
+kernelFullyInitMsg db "[+] Kernel init complete", STREND                         ; Final success message for kernel setup complete
+kernelStartingSyscallTestMsg db "[*] Starting syscall test", STREND              ; Message to show syscall test is starting
+kernelTestingSyscallTableMsg db "[+] Library syscalls test success", STREND      ; Test the syscalls library by printing this string using the kernel library
 
 ; Pad the kernel to 6 sectors
 times 3072 - ($ - $$) db 0

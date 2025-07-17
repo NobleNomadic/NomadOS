@@ -119,3 +119,44 @@ Indicators:
 | [+] (message)          | Operation success                                        |
 | [-] (message) (code)   | General error                                            |
 | [!] (message) (code)   | Fatal system error, crash. Sometimes will only be a code |
+
+## Syscall Table
+To make a syscall from anywhere in the OS from either within the kernel or user programs, use the kernel library.
+Set **BL** to the syscall you want to make, along with any extra requirements that might be needed as shown in the table below.
+The kernel library is always loaded by the kernel to **0x9000:0x0000**.
+By using the call function on that memory address, everything will be automated for you.
+
+| Syscall number (BL) | Function | Arguments           |
+|---------------------|----------|---------------------|
+| 1                   | Print    | SI: String to print |
+| 2                   | Input    | Output goes to SI   |
+
+### Example syscall usage
+
+```asm
+mov byte bl, 1     ; Syscall for print
+mov si, string     ; Set the argument for the string to print
+call 0x9000:0x0000 ; Memory address of kernel library
+```
+
+### Development note for building syscalls
+
+Each syscall has a handler function.
+This handler will call the function, then use the `retf` instruction to return to the calling code.
+You cannot use a conditional jump like most functions, because you need to use `retf` in the kernelLibEntry label.
+
+Example within kernel library:
+
+```asm
+kernelLibraryEntry:
+  ; Initial code
+; Runs anytime that the library is called after the first time
+.skipFirstRun:
+  cmp bl, 1
+  je .handlePrintString
+  retf
+; Handler function to make the retf for the library
+.handlePrintString:
+  call printString
+  retf
+```

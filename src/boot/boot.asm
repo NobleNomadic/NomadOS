@@ -54,8 +54,6 @@ printString:
   jz .done
 
   mov ah, 0x0E
-  mov bh, 0     ; Page number (ignored)
-  mov bl, 0x07  ; Text attribute (ignored by 0x0E)
   int 0x10
 
   jmp .printLoop
