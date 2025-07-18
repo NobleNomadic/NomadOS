@@ -25,7 +25,7 @@ start:
 loadBootManage:
   mov ax, 0x0000      ; Segment 0x0000
   mov es, ax
-  mov bx, 0x8000      ; Load to 0000:9000 (physical 0x9000)
+  mov bx, 0x8000      ; Load to 0000:8000 (physical 0x8000)
   mov ah, 0x02        ; BIOS: read sectors
   mov al, 4           ; Read 4 sectors
   mov ch, 0           ; Cylinder 0

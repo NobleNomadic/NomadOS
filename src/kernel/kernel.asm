@@ -39,18 +39,30 @@ kernelEntry:
   mov si, kernelTestingSyscallTableMsg ; Message to print argument in SI
   call 0x9000:0x0000                   ; Call code at kernel library location, the kernel library will automatically handle the syscall
 
-  ; Get test input
-  mov byte bl, 2
-  mov si, buffer
-  call 0x9000:0x0000
+  ; USER PROGRAM TESTING
+  ; Run the basic.asm program (src/programs/basic.asm)
+  mov ax, 0x2000
+  mov es, ax
+  mov bx, 0x9000
+  mov ah, 0x02       ; BIOS read sectors function
+  mov al, 1          ; Read 1 sector
+  mov ch, 0          ; Cylinder 2
+  mov cl, 18         ; Sector 14 (this should be sector 50 in 1-indexed)
+  mov dh, 0          ; Head 0
+  mov dl, 0x00       ; Drive 0 (floppy)
 
-  mov si, buffer
-  call printKString
+  ; Perform the disk read
+  int 0x13
+  jc hang
 
+  call 0x2000:0x9000
+
+kernelReturn:
+  
   ; Final kernel success complete message
   mov si, kernelFullyInitMsg
   call printKString
-  
+
   ; After library is loaded and tested, continue with normal kernel operations
   ; Here would normally start shell or other kernel operations, for now just hang
   jmp hang

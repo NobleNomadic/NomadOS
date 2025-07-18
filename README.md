@@ -67,11 +67,12 @@ Unlike many operating systems, the shell in NomadOS is not a program, instead it
 It uses functions from the kernel library to get input, and handle commands.
 The shell is very simple and looks for a user program with the same name as the command entered, and then will try and execute that code.
 
-#### User Programs
+### User Programs
 User progams are the useful part of the OS.
 With just a kernel, the operating system can't do anything.
 The user programs allow the user to interact with the operating system and hardware.
 These programs include:
+- basic: Print out a debug message. Designed only for kernel to test running user programs at startup. Sector 50
 - ls: List the current files
 - view [File]: Print the contents of a file
 - echo [Text]: Print the first argument
@@ -87,7 +88,7 @@ These programs include:
 | 1            | `boot.asm`            |
 | 2–5          | `bootmanage.asm`      |
 | 6–12         | `kernel.asm`          |
-| 13–16        | `kernel library`      |
+| 13–16        | `kernellib.asm`       |
 | 17–20        | Shell                 |
 | 49           | File Index            |
 | 50–100       | File Data Blocks      |
@@ -100,12 +101,13 @@ They can be used to store binary programs, or just store text.
 You can write text files within the OS using write and add programs, but binary programs have to be written in assembly, compiled, and then arranged on the file system before booting.
 
 ## Error Codes
-| Code | Meaning                                     |
-|------|---------------------------------------------|
-| 0    | No error, success                           |
-| 1    | User program general non-fatal fail         |
-| 2    | Bootloader did not load bootmanage properly |
-| 3    | Bootmanage failed to load kernel            |
+| Code | Meaning                                      |
+|------|----------------------------------------------|
+| 0    | No error, success                            |
+| 1    | User program general non-fatal fail          |
+| 2    | Bootloader did not load bootmanage properly  |
+| 3    | Bootmanage failed to load kernel             |
+| 4    | Possible fatal disk read by internal program |
 
 ## Message System
 Nomad OS has a specific format for printing messages.
@@ -126,10 +128,11 @@ Set **BL** to the syscall you want to make, along with any extra requirements th
 The kernel library is always loaded by the kernel to **0x9000:0x0000**.
 By using the call function on that memory address, everything will be automated for you.
 
-| Syscall number (BL) | Function | Arguments                                               |
-|---------------------|----------|---------------------------------------------------------|
-| 1                   | Print    | SI: String to print                                     |
-| 2                   | Input    | SI: Set to the buffer for output. Output goes to buffer |
+| Syscall number (BL) | Function  | Arguments                                               |
+|---------------------|-----------|---------------------------------------------------------|
+| 1                   | Print     | SI: String to print                                     |
+| 2                   | Input     | SI: Set to the buffer for output. Output goes to buffer |
+| 3                   | Read Disk | CH: Cylinder, CL: Sector, ES:BX: Address to load into   |
 
 ### Example syscall usage
 
