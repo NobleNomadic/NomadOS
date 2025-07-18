@@ -43,10 +43,45 @@ kernelEntry:
   mov si, kernelFullyInitMsg
   call printKString
 
-  ; After library is loaded and tested, load the shell and give it complete control
-  ; SHELL NOT YET IMPLEMENTED; HANG SYSTEM
-  jmp hang
 
+  ; MOVE TO SHELL
+  ; Load the shell
+  mov ax, 0x6000    ; Segment
+  mov es, ax
+  mov bx, 0x2000    ; Offset
+  ; Disk parameters
+  mov ah, 0x02      ; BIOS read sectors from disk
+  mov al, 4         ; Read 2 sectors
+  mov ch, 0         ; Cylinder 0
+  mov cl, 17        ; Start from sector 17 (read 17-20)
+  mov dh, 0         ; Head 0
+  mov dl, 0x00      ; Floppy drive
+
+  ; Call BIOS
+  int 0x13
+
+  ; Error handling
+  jc .loadShellFail
+
+  ; Give the shell control
+  jmp 0x6000:0x2000
+
+; Carry flag was set when shell loaded
+.loadShellFail:
+  ; Manual print of fatal error code 5
+  mov ah, 0x0E
+  mov al, "["
+  int 0x10
+  mov al, "!"
+  int 0x10
+  mov al, "]"
+  int 0x10
+  mov al, " "
+  int 0x10
+  mov al, "5"
+  int 0x10
+  ; Hang system
+  jmp hang
 
 
 ; Print function to display string in SI

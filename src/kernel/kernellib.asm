@@ -35,9 +35,6 @@ kernelLibEntry:
   ; Input syscall
   cmp bl, 2                      ; Check BL for input syscall
   je .handleGetInput             ; Run handler for input
-  ; Disk read syscall
-  cmp bl, 3                      ; Check BL for disk read syscall
-  je .handleDiskRead
 
   ; Finish function if the syscall was not found
   pop ds                         ; Clean up stack before returning
@@ -55,12 +52,6 @@ kernelLibEntry:
 .handleGetInput:
   pop ds
   call getInput
-  retf
-
-; Disk read
-.handleDiskRead:
-  call diskRead
-  pop ds
   retf
 
 
@@ -136,30 +127,6 @@ getInput:
   ret
 
 
-; Disk read function
-; Must specify the cylinder in CH (0 or 1, no sectors higher than that are used)
-; Sector number on disk is CL
-; If loading sector 63 or above, increase CH and reset CL
-; Set the address to load into in ES:BX.
-; E.G. ES: 0x9000 BX: 0x0000  =  jmp 09000:0x0000
-diskRead:
-  mov ah, 0x02     ; BIOS disk read sectors
-  mov al, 1        ; Only read one sector at a time
-  mov dh, 0        ; Simplify function and only allow disk reading from head 0
-  mov dl, 0x00     ; Drive 0 (floppy)
-
-  int 0x13         ; Call BIOS interupt for disk read
-
-  ; Check for carry flag in case of error
-  jc .diskReadFail
-
-  ret
-
-.diskReadFail:
-  mov si, diskReadFailMsg
-  call printString
-  ret
-
 ; First run setup code
 ; This code runs when the library is called for the first time to print a debug message
 libraryFirstRunSetup:
@@ -180,9 +147,6 @@ libraryFirstRun db 1    ; Keep track of the first run of the library. Make 0 aft
 ; String messages
 libraryFirstRunMsg db "[+] Kernel library initialised", STREND ; Positive success message for library loaded and setup
 libraryLoading db "[*] Running library setup", STREND          ; Initial proof of library loading
-
-; Disk read fail
-diskReadFailMsg db "[-] A program tried to load from the disk and failed", 0x0D, 0x0A, "[-] This could be a fatal error. System memory may be corrupted", STREND
 
 ; Pad library to 4 sectors
 times 2048 - ($ - $$) db 0

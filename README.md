@@ -9,6 +9,16 @@ The operating system code is divided into 4 main parts.
 - Kernel Programs
 - User Programs
 
+When the OS is booted by the BIOS, the `boot.asm` file is loaded.
+This clears the screen and prints the "bootable device found"
+It then loads the `bootmanage.asm` file.
+Most of the bootloader is in the second file allowing the OS to escape the 512 byte limit of initial bootloaders.
+The bootmanager will handle loading `kernel.asm`.
+`kernel.asm` Will load the kernel library into memory allowing for easy reusable syscalls.
+Then the main kernel will load the `shell.asm` code into memory and give it control.
+Unlike most operating systems, the kernel is not activly running and managing processes.
+Instead, the kernel sets up system calls in the form of the kernel library, and then gives complete control to the shell.
+
 ### Bootloader
 The bootloader is made of 2 files. `boot.asm` and `bootmanage.asm`.
 
@@ -82,6 +92,15 @@ These programs include:
 - new [Filename]: Create a new file
 - clear: Clear the screen
 
+Each user program is able to:
+- Jump to the kernel library (call 0x9000:0x0000) and make syscalls
+- Load other programs and run them
+- Modify data on the disk and in memory
+
+However, every program must end with a jump instruction to 0x4000:0x0000, the memory address of the shell.
+If a program loads another file onto the disk and gives it control, that file must be the one to do it.
+The shell uses jump instructions to give user programs full control, and so they must do the same to allow the shell to return
+
 ### Structure on Disk
 | Sectors      | Purpose               |
 |--------------|-----------------------|
@@ -92,6 +111,11 @@ These programs include:
 | 17–20        | Shell                 |
 | 49           | File Index            |
 | 50–100       | File Data Blocks      |
+
+
+## Boot Structure
+boot.asm -> bootmanager.asm -> kernel.asm (0x1000:0x0000) -> kernellibrary.asm (0x9000:0x0000) Syscalls made to this address
+                                                          -> shell.asm (0x6000:0x2000) Main code execution control is given to shell
 
 ## NobleFS Filesystem
 The entire NomadOS uses a file system stored on the same disk that the OS runs on.
@@ -107,7 +131,8 @@ You can write text files within the OS using write and add programs, but binary 
 | 1    | User program general non-fatal fail          |
 | 2    | Bootloader did not load bootmanage properly  |
 | 3    | Bootmanage failed to load kernel             |
-| 4    | Possible fatal disk read by internal program |
+| 4    | Kernel failed to load kernel library         |
+| 5    | Kernel failed to load shell                  |
 
 ## Message System
 Nomad OS has a specific format for printing messages.
@@ -128,14 +153,12 @@ Set **BL** to the syscall you want to make, along with any extra requirements th
 The kernel library is always loaded by the kernel to **0x9000:0x0000**.
 By using the call function on that memory address, everything will be automated for you.
 
-| Syscall number (BL) | Function  | Arguments                                               |
-|---------------------|-----------|---------------------------------------------------------|
-| 1                   | Print     | SI: String to print                                     |
-| 2                   | Input     | SI: Set to the buffer for output. Output goes to buffer |
-| 3                   | Read Disk | CH: Cylinder, CL: Sector, ES:BX: Address to load into   |
+| Syscall number (BL) | Function  | Arguments                                                                |
+|---------------------|-----------|--------------------------------------------------------------------------|
+| 1                   | Print     | SI: String to print                                                      |
+| 2                   | Input     | SI: Set to the buffer for output. Output goes to buffer                  |
 
 ### Example syscall usage
-
 ```asm
 mov byte bl, 1     ; Syscall for print
 mov si, string     ; Set the argument for the string to print
@@ -143,7 +166,6 @@ call 0x9000:0x0000 ; Memory address of kernel library
 ```
 
 ### Development note for building syscalls
-
 Each syscall has a handler function.
 This handler will call the function, then use the `retf` instruction to return to the calling code.
 You cannot use a conditional jump like most functions, because you need to use `retf` in the kernelLibEntry label.
