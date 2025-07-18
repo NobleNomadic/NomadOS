@@ -3,8 +3,6 @@
 [bits 16]
 
 programEntry:
-  pusha
-  push ds
   ; Set up segments for this program
   mov ax, 0x2000
   mov ds, ax
@@ -14,28 +12,25 @@ programEntry:
   mov ah, 0x0E     ; BIOS TTY output function
   
   ; Print "Works!"
-  mov al, "W"
+  mov al, "["
   int 0x10
-  mov al, "o"
+  mov al, "+"
   int 0x10  
-  mov al, "r"
+  mov al, "]"
   int 0x10
-  mov al, "k"
+  mov al, " "
   int 0x10
-  mov al, "s"
-  int 0x10
-  mov al, "!"
-  int 0x10
-  
+  mov al, "5"
+
   ; Newline
   mov al, 0x0D
   int 0x10
   mov al, 0x0A
   int 0x10
 
-  pop ds
-  popa
-  retf
+  ; Make jump back to shell memory address
+  ; SHELL NOT YET IMPLEMENTED
+  jmp 0x4000:0x0000
 
 ; Pad to 512 bytes
 times 512 - ($ - $$) db 0
