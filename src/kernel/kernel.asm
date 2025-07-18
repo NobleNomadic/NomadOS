@@ -46,8 +46,8 @@ kernelEntry:
   mov bx, 0x9000
   mov ah, 0x02       ; BIOS read sectors function
   mov al, 1          ; Read 1 sector
-  mov ch, 0          ; Cylinder 2
-  mov cl, 18         ; Sector 14 (this should be sector 50 in 1-indexed)
+  mov ch, 1          ; Cylinder 2
+  mov cl, 14         ; Sector 14 (this should be sector 50 in 1-indexed)
   mov dh, 0          ; Head 0
   mov dl, 0x00       ; Drive 0 (floppy)
 

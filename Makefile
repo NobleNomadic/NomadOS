@@ -50,7 +50,7 @@ $(IMG): $(BOOT_BIN) $(BMANAGE_BIN) $(KERNEL_BIN) $(KERNELLIB_BIN) $(BASIC_PROGRA
 	dd if=$(BMANAGE_BIN) of=$(IMG) bs=512 seek=1 conv=notrunc
 	dd if=$(KERNEL_BIN) of=$(IMG) bs=512 seek=5 conv=notrunc
 	dd if=$(KERNELLIB_BIN) of=$(IMG) bs=512 seek=12 conv=notrunc
-	dd if=$(BASIC_PROGRAM_BIN) of=$(IMG) bs=512 seek=17 conv=notrunc
+	dd if=$(BASIC_PROGRAM_BIN) of=$(IMG) bs=512 seek=49 conv=notrunc
 
 	truncate -s 1440k $(IMG)
 
