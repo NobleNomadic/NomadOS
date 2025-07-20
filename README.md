@@ -80,7 +80,7 @@ Unlike many operating systems, the shell in NomadOS is not a program, instead it
 It uses functions from the kernel library to get input, and handle commands.
 The shell is very simple and looks for a user program with the same name as the command entered, and then will try and execute that code.
 
-To find a user program, the shell loads sector 49 of the disk into memory.
+To find a user program, the shell loads sector 40 of the disk into memory.
 This sector contains the data for where each file is stored, both programs and user files.
 
 ### User Programs
@@ -88,14 +88,14 @@ User progams are the useful part of the OS.
 With just a kernel, the operating system can't do anything.
 The user programs allow the user to interact with the operating system and hardware.
 These programs include:
-- basic: Print out a debug message. Designed only for kernel to test running user programs at startup. Sector 50
-- ls: List the current files
-- view (File): Print the contents of a file
-- echo (Text): Print the first argument
-- add (File) (Text): Append data to a file
-- write (File) (Text): Rewrite the contents of a file
-- del (File): Delete a file
-- clear: Clear the screen
+- basic:   Print out a debug message. Designed only for debugging
+- ls:      List the filenames within the operating system
+- view:    Print the contents of a file
+- echo:    Print the first argument
+- add:     Append data to a file
+- write:   Rewrite the contents of a file
+- del:     Delete a file
+- clear:   Clear the screen
 
 Each user program is able to:
 - Jump to the kernel library (call 0x9000:0x0000) and make syscalls
@@ -113,8 +113,8 @@ The shell uses jump instructions to give user programs full control, and so they
 | 2–5          | `bootmanage.asm`      |
 | 6–12         | `kernel.asm`          |
 | 13–16        | `kernellib.asm`       |
-| 17–20        | Shell                 |
-| 49           | File Index            |
+| 17–20        | `shell.asm`           |
+| 40-49        | `nnfs.asm`            |
 | 50–64        | File Data Blocks      |
 
 

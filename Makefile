@@ -65,7 +65,7 @@ $(IMG): $(BOOT_BIN) $(BMANAGE_BIN) $(KERNEL_BIN) $(KERNELLIB_BIN) $(SHELL_BIN) $
 	dd if=$(KERNEL_BIN) of=$(IMG) bs=512 seek=5 conv=notrunc
 	dd if=$(KERNELLIB_BIN) of=$(IMG) bs=512 seek=12 conv=notrunc
 	dd if=$(SHELL_BIN) of=$(IMG) bs=512 seek=16 conv=notrunc
-	dd if=$(NNFS_BIN) of=$(IMG) bs=512 seek=48 conv=notrunc
+	dd if=$(NNFS_BIN) of=$(IMG) bs=512 seek=39 conv=notrunc
 	dd if=$(BASIC_PROGRAM_BIN) of=$(IMG) bs=512 seek=49 conv=notrunc
 
 	truncate -s 1440k $(IMG)

@@ -51,7 +51,7 @@ kernelEntry:
   mov ah, 0x02    ; BIOS read sectors from disk
   mov al, 1         ; Read 1 sector
   mov ch, 1         ; Cylinder 1
-  mov cl, 13        ; Sector 13
+  mov cl, 4         ; Sector 4
   mov dh, 0         ; Head 0
   mov dl, 0x00      ; Floppy drive
 
