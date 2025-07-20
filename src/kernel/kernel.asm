@@ -39,6 +39,34 @@ kernelEntry:
   mov si, kernelTestingSyscallTableMsg ; Message to print argument in SI
   call 0x9000:0x0000                   ; Call code at kernel library location, the kernel library will automatically handle the syscall
 
+  ; FILE SYSTEM MOUNTING
+  ; Message to show mounting
+  mov si, kernelLoadingFileSystemMsg
+  call printKString
+  ; Load the file system table (sector 49) into memory
+  mov ax, 0x7000    ; Segment
+  mov es, ax
+  mov bx, 0x2000    ; Offset
+  ; Disk parameters
+  mov ah, 0x02    ; BIOS read sectors from disk
+  mov al, 1         ; Read 1 sector
+  mov ch, 1         ; Cylinder 1
+  mov cl, 13        ; Sector 13
+  mov dh, 0         ; Head 0
+  mov dl, 0x00      ; Floppy drive
+
+  ; Call BIOS interupt
+  int 0x13
+  jc .loadFSFail
+
+  ; Call code
+  call 0x7000:0x2000
+
+  ; Reset segment
+  mov ax, 0x1000
+  mov ds, ax
+  mov es, ax
+  
   ; Final kernel success complete message
   mov si, kernelFullyInitMsg
   call printKString
@@ -79,6 +107,22 @@ kernelEntry:
   mov al, " "
   int 0x10
   mov al, "5"
+  int 0x10
+  ; Hang system
+  jmp hang
+
+.loadFSFail:
+  ; Manual print of fatal error code 6
+  mov ah, 0x0E
+  mov al, "["
+  int 0x10
+  mov al, "!"
+  int 0x10
+  mov al, "]"
+  int 0x10
+  mov al, " "
+  int 0x10
+  mov al, "6"
   int 0x10
   ; Hang system
   jmp hang
@@ -169,7 +213,7 @@ kernelReturnAfterLibLoadMsg db "[+] Kernel main code execution returned", STREND
 kernelFullyInitMsg db "[+] Kernel init complete", STREND                         ; Final success message for kernel setup complete
 kernelStartingSyscallTestMsg db "[*] Starting syscall test", STREND              ; Message to show syscall test is starting
 kernelTestingSyscallTableMsg db "[+] Library syscalls test success", STREND      ; Test the syscalls library by printing this string using the kernel library
-
+kernelLoadingFileSystemMsg db "[*] Kernel mounting file system", STREND          ; Print this just before kernel loads file system table into memory
 
 buffer times 256 db 0
 

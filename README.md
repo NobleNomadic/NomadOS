@@ -48,9 +48,12 @@ The kernel programs are 2 pieces of code NomadOS uses to control user programs.
 
 The first is the kernel library which is for handling common OS functions like disk interaction, printing to the screen, and getting input.
 
+The kernel then loads the file system (NNFS).
+This is done by loading sector 49 from the disk into memory, the file management index.
+
 It then starts the shell, a command line tool that allows the user to enter the name of a program, and then run it.
 
-Once these 2 pieces of code are loaded into memory, the shell is given control of code execution.
+Once these 3 pieces of code are loaded into memory, the shell is given control of code execution.
 
 ### Kernel Programs
 As stated above, the kernel programs are used to control the user programs once loaded by the kernel.
@@ -65,7 +68,7 @@ Pseudo Usage:
 ; Entry
 kernelLibraryEntry:
   ; Check what request was made
-  cmp requestArgumentReg, [printFunctionName] ; Check for print function
+  cmp requestArgumentReg, printFunction       ; Check for print function
   je printFunction                            ; Conditonal jump to the print function
   ; Continue checking other requests
 
@@ -77,6 +80,9 @@ Unlike many operating systems, the shell in NomadOS is not a program, instead it
 It uses functions from the kernel library to get input, and handle commands.
 The shell is very simple and looks for a user program with the same name as the command entered, and then will try and execute that code.
 
+To find a user program, the shell loads sector 49 of the disk into memory.
+This sector contains the data for where each file is stored, both programs and user files.
+
 ### User Programs
 User progams are the useful part of the OS.
 With just a kernel, the operating system can't do anything.
@@ -84,12 +90,11 @@ The user programs allow the user to interact with the operating system and hardw
 These programs include:
 - basic: Print out a debug message. Designed only for kernel to test running user programs at startup. Sector 50
 - ls: List the current files
-- view [File]: Print the contents of a file
-- echo [Text]: Print the first argument
-- add [File] [Text]: Append data to a file
-- write [File] [Text]: Rewrite the contents of a file
-- del [File]: Delete a file
-- new [Filename]: Create a new file
+- view (File): Print the contents of a file
+- echo (Text): Print the first argument
+- add (File) (Text): Append data to a file
+- write (File) (Text): Rewrite the contents of a file
+- del (File): Delete a file
 - clear: Clear the screen
 
 Each user program is able to:
@@ -97,7 +102,7 @@ Each user program is able to:
 - Load other programs and run them
 - Modify data on the disk and in memory
 
-However, every program must end with a jump instruction to 0x4000:0x0000, the memory address of the shell.
+However, every program must end with a jump instruction to 0x6000:0x2000, the memory address of the shell.
 If a program loads another file onto the disk and gives it control, that file must be the one to do it.
 The shell uses jump instructions to give user programs full control, and so they must do the same to allow the shell to return
 
@@ -110,19 +115,21 @@ The shell uses jump instructions to give user programs full control, and so they
 | 13–16        | `kernellib.asm`       |
 | 17–20        | Shell                 |
 | 49           | File Index            |
-| 50–100       | File Data Blocks      |
+| 50–64        | File Data Blocks      |
 
 
 ## Boot Structure
 boot.asm -> bootmanager.asm -> kernel.asm (0x1000:0x0000) -> kernellibrary.asm (0x9000:0x0000) Syscalls made to this address
+                                                          -> nnfs.asm (0x7000:0x2000) NobleNomadic Filesystem
                                                           -> shell.asm (0x6000:0x2000) Main code execution control is given to shell
 
-## NobleFS Filesystem
+## NNFS (NobleNomadic File System)
 The entire NomadOS uses a file system stored on the same disk that the OS runs on.
-Sectors 50-100 are assigned to the file system, with 49 being used to store the data about what each file is named, and what sector to find that file in.
-This allows for 50 files with unique names and up to 512 bytes of content per file.
-They can be used to store binary programs, or just store text.
-You can write text files within the OS using write and add programs, but binary programs have to be written in assembly, compiled, and then arranged on the file system before booting.
+Sectors 50-64 are assigned to files and are used to store binary executable files, and text files.
+The user space programs are stored here, and can be executed by the shell.
+There are also text files, which are also programs in a way.
+The text files are 1 sector executable assembly programs which when called, have a similar syscall structure to the kernel library, centered around the idea of the file modifying its main string data variable containing the file contents.
+The syscalls in a file are able to read and write data to the string variable.
 
 ## Error Codes
 | Code | Meaning                                      |
@@ -133,19 +140,22 @@ You can write text files within the OS using write and add programs, but binary 
 | 3    | Bootmanage failed to load kernel             |
 | 4    | Kernel failed to load kernel library         |
 | 5    | Kernel failed to load shell                  |
+| 6    | Kernel failed to load file system            |
 
 ## Message System
 Nomad OS has a specific format for printing messages.
 When the system is printing a command it starts with an indicator.
 This indicator determines the type of message.
+All indicators (except [>]) will have a code and a message, others may only contain one or the other
 
 Indicators:
 | Indicator              | Meaning                                                  |
 |------------------------|----------------------------------------------------------|
-| [*] (message)          | Notification. Neutral alert                              |
-| [+] (message)          | Operation success                                        |
+| [*] (message) (code)   | Notification. Neutral alert                              |
+| [+] (message) (code)   | Operation success                                        |
 | [-] (message) (code)   | General error                                            |
-| [!] (message) (code)   | Fatal system error, crash. Sometimes will only be a code |
+| [!] (message) (code)   | Fatal system error, crash.                               |
+| [>]                    | Ready for input                                          |
 
 ## Syscall Table
 To make a syscall from anywhere in the OS from either within the kernel or user programs, use the kernel library.
@@ -153,10 +163,10 @@ Set **BL** to the syscall you want to make, along with any extra requirements th
 The kernel library is always loaded by the kernel to **0x9000:0x0000**.
 By using the call function on that memory address, everything will be automated for you.
 
-| Syscall number (BL) | Function  | Arguments                                                                |
-|---------------------|-----------|--------------------------------------------------------------------------|
-| 1                   | Print     | SI: String to print                                                      |
-| 2                   | Input     | SI: Set to the buffer for output. Output goes to buffer                  |
+| Syscall number (BL) | Function  | Arguments                                               |
+|---------------------|-----------|---------------------------------------------------------|
+| 1                   | Print     | SI: String to print                                     |
+| 2                   | Input     | SI: Set to the buffer for output. Output goes to buffer |
 
 ### Example syscall usage
 ```asm

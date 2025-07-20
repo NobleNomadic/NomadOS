@@ -74,22 +74,27 @@ printString:
   pop ax
   ret
 
-
-; Input to get a line of text from the user, and send it back to caller
+; Get a line of input and store it in the buffer variable placed in SI
+; Return a null terminated string with a newline in the variable placed in SI
 getInput:
-  push ax ; Push all used registers to stack
+  push ax            ; Push all used registers to stack
   push bx
   push cx
   push dx
   push si
+
 .readChar:
   ; Read a character with BIOS, echo it, and store in buffer
-  mov ah, 0x00      ; BIOS input
-  int 0x16          ; Wait for keypress
+  mov ah, 0x00       ; BIOS input
+  int 0x16           ; Wait for keypress
 
   ; Check for enter
-  cmp al, 0x0D      ; Hex code for enter
-  je .done          ; Finish input
+  cmp al, 0x0D       ; Hex code for enter
+  je .done           ; Finish input
+
+  ; Check for backspace (0x08)
+  cmp al, 0x08       ; Hex code for backspace
+  je .backspace      ; Handle backspace
 
   ; Echo the character to tty
   mov ah, 0x0E
@@ -98,9 +103,27 @@ getInput:
   ; Store output in buffer
   mov [si], al
   inc si
-
-  ; Continue loop
   jmp .readChar
+
+.backspace:
+  ; Handle backspace: move the pointer back and erase the previous character
+  cmp si, 0          ; Check if we are at the beginning of the buffer
+  je .readChar       ; If so, do nothing and continue the loop
+
+  dec si             ; Move pointer back one character
+
+  ; Echo backspace to tty (erase previous character)
+  mov ah, 0x0E
+  mov al, 0x08       ; Backspace character
+  int 0x10           ; Echo backspace
+
+  mov al, ' '        ; Write a space to overwrite the character
+  int 0x10           ; Echo space
+
+  mov al, 0x08       ; Move the cursor back to previous position
+  int 0x10           ; Echo backspace
+
+  jmp .readChar      ; Continue reading characters
 
 .done:
   ; Add a carriage return and null terminator manually to the string
