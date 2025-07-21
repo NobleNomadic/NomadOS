@@ -1,6 +1,8 @@
 ; kernellib.asm - Loaded in by the kernel for handling reused functions
 [org 0x0000]
 [bits 16]
+
+; Force entry to be the right function
 jmp kernelLibEntry
 
 ; End of line macro with null terminator
@@ -159,6 +161,8 @@ libraryFirstRunSetup:
   
   ; Set the first run var to 0 to prevent this from running in future
   mov byte [libraryFirstRun], 0
+  ; Make sure not to trigger a syscall
+  mov byte bl, 0
   
   ; Return to the entry function
   ret
