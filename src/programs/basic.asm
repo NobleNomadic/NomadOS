@@ -28,9 +28,8 @@ programEntry:
   mov al, 0x0A
   int 0x10
 
-  ; Make jump back to shell memory address
-  ; SHELL NOT YET IMPLEMENTED
-  jmp 0x4000:0x0000
+  ; Make return to the shell which called this
+  retf  ; Far retun across segment
 
 ; Pad to 512 bytes
 times 512 - ($ - $$) db 0

@@ -37,6 +37,29 @@ shellLoop:
   mov byte bl, 2      ; Input syscall
   call 0x9000:0x0000  ; Make syscall
 
+  ; SI now contains a line of input
+  ; Use file index to find CHS address of matching file
+  mov byte bl, 2      ; Find address syscall
+  call 0x7000:0x2000  ; Address of file index
+
+  ; Use int 0x13 to load CHS address into memory
+  mov ah, 0x4000      ; Segment to load program
+  mov es, ax
+  mov bx, 0x2000      ; Offset
+  mov ah, 0x02        ; BIOS read sectors from disk
+  mov al, 1           ; Read 1 sector
+  mov dl, 0x00        ; Floppy drive
+
+  ; Call BIOS
+  int 0x13
+
+  ; Call the loaded code
+  call 0x4000:0x2000
+  ; Reset the segment data
+  mov ax, 0x6000
+  mov ds, ax
+  mov es, ax
+
   ; Continue loop
   jmp shellLoop
 
@@ -45,7 +68,7 @@ shellLoop:
 buffer times 256 db 0
 
 ; Strings
-shellPrompt db "[>]", STREND
+shellPrompt db "[>]", STREND   ; Prompt printed before input
 
 ; Pad to 4 sectors
 times 2048 - ($ - $$) db 0
