@@ -19,7 +19,6 @@ shellEntry:
   ; Give control to the main loop
   jmp shellLoop
 
-
 shellLoop:
   ; Reset the buffer to 0s before taking new input
   lea di, buffer      ; Load address of buffer
@@ -36,30 +35,6 @@ shellLoop:
   mov si, buffer      ; Output variable
   mov byte bl, 2      ; Input syscall
   call 0x9000:0x0000  ; Make syscall
-
-  ; SI now contains a line of input
-  ; Use file index to find CHS address of matching file
-  mov byte bl, 2      ; Find address syscall
-  call 0x7000:0x2000  ; Address of file index
-
-  ; Use int 0x13 to load CHS address into memory
-  mov ah, 0x4000      ; Segment to load program
-  mov es, ax
-  mov bx, 0x2000      ; Offset
-  mov ah, 0x02        ; BIOS read sectors from disk
-  mov al, 1           ; Read 1 sector
-  mov dl, 0x00        ; Floppy drive
-
-  ; Call BIOS
-  int 0x13
-
-  ; Call the loaded code
-  call 0x4000:0x2000
-  ; Reset the segment data
-  mov ax, 0x6000
-  mov ds, ax
-  mov es, ax
-
   ; Continue loop
   jmp shellLoop
 

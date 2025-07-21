@@ -11,7 +11,7 @@ programEntry:
   ; Set up for BIOS print
   mov ah, 0x0E     ; BIOS TTY output function
   
-  ; Print code 5 to the screen - success code for basic program functions successfully
+  ; Print code 7 to the screen - success code for basic program functions successfully
   mov al, "["
   int 0x10
   mov al, "+"
@@ -20,7 +20,7 @@ programEntry:
   int 0x10
   mov al, " "
   int 0x10
-  mov al, "5"
+  mov al, "7"
 
   ; Newline
   mov al, 0x0D
