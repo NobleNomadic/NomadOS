@@ -6,6 +6,10 @@ BOOT_DIR = boot
 
 BOOT_SRC = $(SRC_DIR)/$(BOOT_DIR)/boot.asm
 BOOT_BIN = $(BUILD_DIR)/$(BOOT_DIR)/boot.bin
+
+BOOT_MANAGE_SRC = $(SRC_DIR)/$(BOOT_DIR)/bootmanage.asm
+BOOT_MANAGE_BIN = $(BUILD_DIR)/$(BOOT_DIR)/bootmanage.bin
+
 IMG = $(BUILD_DIR)/os.img
 
 # Default target
@@ -21,10 +25,17 @@ $(BOOT_BIN): $(BOOT_SRC)
 	       exit 1; \
 	   fi
 
-# Create floppy disk image with bootloader
-$(IMG): $(BOOT_BIN)
+# Assemble boot manager
+$(BOOT_MANAGE_BIN): $(BOOT_MANAGE_SRC)
+	mkdir -p $(BUILD_DIR)/$(BOOT_DIR)
+	$(ASM) -f bin $< -o $@
+
+
+# Create floppy disk image
+$(IMG): $(BOOT_BIN) $(BOOT_MANAGE_BIN)
 	mkdir -p $(BUILD_DIR)
 	cp $(BOOT_BIN) $(IMG)
+	dd if=$(BOOT_MANAGE_BIN) of=$(IMG) bs=512 seek=1 conv=notrunc
 	truncate -s 1440k $(IMG)
 
 # Clean build directory
