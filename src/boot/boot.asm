@@ -49,7 +49,7 @@ loadBootManage:
   mov ch, 0        ; Cylinder 0
   mov cl, 2        ; Sector 2 (read 2-5)
   mov dh, 0        ; Head 0
-  mov dl, 0x00     ; Drive 0
+  mov dl, 0x00     ; Floppy drive
 
   ; Call BIOS
   mov ah, 0x02     ; BIOS read sectors
