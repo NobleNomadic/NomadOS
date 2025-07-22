@@ -10,7 +10,7 @@ kernelEntry:
   mov es, ax
 
   ; Kernel code control reached message
-  mov si, kernelEntryMessage
+  mov si, kernelEntryMsg
   call printString
 
   ; Hang system

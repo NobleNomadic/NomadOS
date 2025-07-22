@@ -3,7 +3,7 @@ ASM = nasm
 SRC_DIR = src
 BUILD_DIR = build
 BOOT_DIR = boot
-KERNEL_DIR
+KERNEL_DIR = kernel
 
 BOOT_SRC = $(SRC_DIR)/$(BOOT_DIR)/boot.asm
 BOOT_BIN = $(BUILD_DIR)/$(BOOT_DIR)/boot.bin
