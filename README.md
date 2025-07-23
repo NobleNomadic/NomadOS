@@ -19,8 +19,8 @@ The [shell](src/shell/) is the main userspace system and allows the user to type
 |---------|------------------|
 | 1       | `boot.asm`       |
 | 2-5     | `bootmanage.asm` |
-| 6-13    | `kernel.asm`     |
-| 14-17   | `shell.asm`      |
+| 6-12    | `kernel.asm`     |
+| 13-16   | `shell.asm`      |
 
 ## Syscalls
 | Value | Purpose               | Arguments                        |
@@ -38,6 +38,7 @@ The [shell](src/shell/) is the main userspace system and allows the user to type
 | 3    | Boot manager failed to load kernel |
 
 ## Memory Map
-**0x0000:0x7C00**: boot.asm
-**0x0000:0x2000**: bootmanage.asm
-**0x1000:0x0000**: kernel.asm
+- **0x0000:0x7C00**: boot.asm
+- **0x0000:0x2000**: bootmanage.asm
+- **0x1000:0x0000**: kernel.asm
+- **0x2000:0x2000**: shell.asm
