@@ -22,6 +22,9 @@ kernelEntry:
   ; Syscall 3: Input
   cmp bl, 3
   je .getInputHandler
+  ; Syscall 4: Compare strings
+  cmp bl, 4
+  je .compareStringsHandler
   
   ; Restore caller's segments and return
   pop es
@@ -29,7 +32,7 @@ kernelEntry:
   retf
 
 ; HANDLER FUNCTIONS
-; Print function handler - Fixed to handle cross-segment strings
+; Print function handler
 .printStringHandler:
   push bx            ; Preserve BX register
   push ds            ; Save current DS
@@ -44,6 +47,7 @@ kernelEntry:
   pop ds
   retf               ; Far return across segment
 
+; Input function handler
 .getInputHandler:
   push bx            ; Preserve BX register
   push ds            ; Save current DS
@@ -54,6 +58,21 @@ kernelEntry:
   pop ds             ; Restore DS
   pop bx             ; Restore BX register
   ; Restore caller's segments and return
+  pop es
+  pop ds
+  retf
+
+; Compare string handler
+.compareStringsHandler:
+  push bx            ; Preserve BX register
+  push ds            ; Save current DS
+  ; Set DS to callers segment (0x2000 for shell)
+  mov ax, 0x2000
+  mov ds, ax
+  call compareStrings
+  pop ds             ; Restore DS
+  pop bx             ; Restore BX register
+  ; Restore caller segments and return
   pop es
   pop ds
   retf
@@ -129,6 +148,25 @@ getInput:
   pop si         ; Return register state and return
   pop ax
   ret
+
+; Compare strings function - Compare the strings in SI and DI, return 1 or 0 in AX
+compareStrings:
+    push cx            ; Preserve registers
+    xor ax, ax         ; Default to AX = 0 (false)
+.loop:
+    lodsb              ; Load byte from [SI] into AL, advance SI
+    cmp al, [di]       ; Compare AL with byte at [DI]
+    jne .done          ; If not equal, exit (AX already 0)
+    cmp al, 0          ; Check for null terminator
+    je .equal          ; If both hit null, strings are equal
+    inc di             ; Move to next byte in second string
+    jmp .loop          ; Repeat
+.equal:
+    mov ax, 1          ; Strings match, set AX = 1
+.done:
+    pop cx             ; Restore registers
+    ret
+
 
 ; Backup hang function
 hang:

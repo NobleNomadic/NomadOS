@@ -23,11 +23,12 @@ The [shell](src/shell/) is the main userspace system and allows the user to type
 | 13-16   | `shell.asm`      |
 
 ## Syscalls
-| Value | Purpose               | Arguments                        |
-|-------|-----------------------|----------------------------------|
-| 1     | Give control to shell | None                             |
-| 2     | Print a string        | **SI**: String to print          |
-| 3     | Get input             | **SI**: Variable to store output |
+| Value | Purpose                        | Arguments                          |
+|-------|--------------------------------|------------------------------------|
+| 1     | Give control to shell          | None                               |
+| 2     | Print a string                 | **SI**: String to print            |
+| 3     | Get input                      | **SI**: Variable to store output   |
+| 4     | Compare strings (output to AX) | **SI**: String 1, **DI**: String 2 |
 
 ## Message Codes
 | Code | Meaning                            |

@@ -1,7 +1,7 @@
 ; shell.asm - Main userspace system for OS interaction
 [org 0x2000]
 ; Macro for end of line and null terminator
-%define STREND 0x0A, 0x0D, 0x00
+%define STREND 0x0D, 0x0A, 0x00
 
 shellEntry:
   ; Setup segment
