@@ -31,6 +31,7 @@ kernelEntry:
 ; Function that runs on kernel first run
 kernelFirstRun:
   ; Print message to show kernel is running  
+  ; Kernel code control reached message
   mov si, kernelEntryMsg
   call printString
 
