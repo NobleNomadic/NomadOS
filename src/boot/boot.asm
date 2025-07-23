@@ -27,7 +27,7 @@ bootEntry:
 printString:
   push ax     ; Push used registers
   push si
-.printLoop
+.printLoop:
   lodsb          ; Load next
   or al, al      ; Check for null terminator
   jz .done       ; Finish if it is
