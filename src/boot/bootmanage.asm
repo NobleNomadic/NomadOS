@@ -111,10 +111,12 @@ hang:
   jmp $ 
 
 ; DATA SECTION
+; Entry message
 bootManageEntryMsg db "[+] Bootmanager loaded", STREND
-
+; Loading alert messages
 loadingKernelMsg db "[*] Loading kernel", STREND
 loadingShellMsg db "[*] Loading shell", STREND
+; Error messages
 failedKernelLoadMsg db "[-] Error loading kernel - 3", STREND
 failedShellLoadMsg db "[-] Error loading shell - 4", STREND
 

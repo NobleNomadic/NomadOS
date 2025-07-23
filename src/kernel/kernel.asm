@@ -18,6 +18,9 @@ kernelEntry:
   cmp bl, 2
   je .printStringHandler
 
+  ; Syscall 3: Input
+  cmp bl, 3
+  je .getInputHandler
 
   ; Return far across segment to caller
   retf
@@ -27,6 +30,10 @@ kernelEntry:
 .printStringHandler:
   call printString ; Call the function
   retf             ; Far return across segment
+
+.getInputHandler:
+  call getInput
+  retf
 
 ; Function that runs on kernel first run
 kernelFirstRun:
@@ -55,6 +62,26 @@ printString:
   pop ax
   ret
 
+; Input function - Get a line of input and write to the variable in SI
+getInput:
+  push ax        ; Push used registers
+  push si
+.inputLoop:
+  ; Use BIOS for getting a key of input
+  mov ah, 0x00   ; BIOS blocking input
+  int 0x16       ; Call BIOS interupt
+
+  ; Check if the byte written to AL was enter key (0x0D)
+  cmp al, 0x0D
+  je .done
+
+  ; Echo the character back
+  mov ah, 0x0E   ; BIOS tty print
+  int 0x10       ; Call interupt for tty print
+.done:
+  pop ax         ; Return register state and return
+  pop si
+  ret
 
 ; Backup hang function
 hang:
