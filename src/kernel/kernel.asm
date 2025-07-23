@@ -36,9 +36,7 @@ kernelEntry:
   ; Set DS to caller's segment (0x2000 for shell)
   mov ax, 0x2000
   mov ds, ax
-  
   call printString   ; Call the function
-  
   pop ds             ; Restore DS
   pop bx             ; Restore BX register
   ; Restore caller's segments and return
@@ -102,13 +100,25 @@ getInput:
   ; Check if the byte written to AL was enter key (0x0D)
   cmp al, 0x0D
   je .done
-  
+
+  ; Write the character to SI
+  mov [si], al
+  inc si
+
   ; Echo the character back
   mov ah, 0x0E   ; BIOS tty print
   int 0x10       ; Call interrupt for tty print
   jmp .inputLoop ; Continue getting input
   
 .done:
+  ; Add newline and null terminator to SI
+  mov byte [si], 0x0D
+  inc si
+  mov byte [si], 0x0A
+  inc si
+  mov byte [si], 0x00
+  inc si
+
   ; Print newline after enter
   mov al, 0x0D
   mov ah, 0x0E

@@ -27,15 +27,16 @@ shellLoop:
   mov si, shellPrompt ; Value to print
   mov byte bl, 2      ; Syscall for print
   call 0x1000:0x0000  ; Kernel address
-  
-  mov ah, 0x00
-  int 0x16
-  mov ah, 0x0E
-  int 0x10
-  mov al, 0x0D
-  int 0x10
-  mov al, 0x0A
-  int 0x10
+
+  ; Syscall 3 for input
+  mov si, inputBuffer ; Get input into the inputBuffer variable
+  mov byte bl, 3      ; Use syscall 3 for input
+  call 0x1000:0x0000  ; Call kernel address
+
+  ; Echo back the data
+  mov si, inputBuffer ; Print the inputBuffer
+  mov byte bl, 2      ; Syscall 2 for print
+  call 0x1000:0x0000  ; Call kernel address
   
   ; Continue shell loop
   jmp shellLoop
@@ -43,6 +44,7 @@ shellLoop:
 ; DATA SECTION
 shellPrompt db "[>]", STREND ; Prompt to print each loop of shell
 shellLoadedMsg db "[+] Shell loaded", STREND ; Debug message to prove shell loaded
+inputBuffer times 256 db 0
 
 ; Pad shell to 4 sectors
 times 2048 - ($ - $$) db 0
