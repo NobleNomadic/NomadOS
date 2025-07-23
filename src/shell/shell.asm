@@ -38,5 +38,5 @@ shellLoop:
 shellPrompt db "[>]", STREND ; Prompt to print each loop of shell
 shellLoadedMsg db "[+] Shell loaded", STREND
 
-; Pad shell to 4 bytes
+; Pad shell to 4 sectors
 times 2048 - ($ - $$) db 0
