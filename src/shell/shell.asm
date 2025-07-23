@@ -33,18 +33,37 @@ shellLoop:
   mov byte bl, 3      ; Use syscall 3 for input
   call 0x1000:0x0000  ; Call kernel address
 
-  ; Echo back the data
-  mov si, inputBuffer ; Print the inputBuffer
-  mov byte bl, 2      ; Syscall 2 for print
-  call 0x1000:0x0000  ; Call kernel address
-  
+  ; Check if the user typed "test" to test syscall 4
+  mov si, inputBuffer ; Compare the input with the test string
+  mov di, testString
+  mov byte bl, 4      ; Syscall for string comparison
+  call 0x1000:0x0000  ; Call kernel
+
+  cmp ax, 1
+  je .testGood
+
+  mov si, testFail
+  mov byte bl, 2
+  call 0x1000:0x0000
+
   ; Continue shell loop
+  jmp shellLoop
+
+.testGood:
+  mov si, testGood
+  mov byte bl, 2
+  call 0x1000:0x0000
   jmp shellLoop
 
 ; DATA SECTION
 shellPrompt db "[>]", STREND ; Prompt to print each loop of shell
 shellLoadedMsg db "[+] Shell loaded", STREND ; Debug message to prove shell loaded
 inputBuffer times 256 db 0
+
+; STRING COMPARE TESTING
+testString db "test", STREND ; String to check if the user typed
+testGood db "test success", STREND
+testFail db "test fail", STREND
 
 ; Pad shell to 4 sectors
 times 2048 - ($ - $$) db 0
