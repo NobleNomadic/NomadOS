@@ -15,14 +15,23 @@ bootManageEntry:
   mov si, bootManageEntryMsg
   call printString
 
-  ; Load the kernel, kernel library and shell
+  ; Load the kernel and shell
   ; LOADING KERNEL
   ; Print message to show that kernel is loading
   mov si, loadingKernelMsg
   call printString
   ; Load the kernel
   call loadKernel
-  ; Finally, give kernel code control
+
+  ; LOADING SHELL
+  ; Print message to show that shell is loading
+  mov si, loadingShellMsg
+  call printString
+  ; Load the shell
+  call loadShell
+  
+  ; Finally, give kernel code control with syscall 1
+  mov byte bl, 1
   jmp 0x1000:0x0000
 
 
@@ -43,7 +52,7 @@ printString:
   ret
 
 
-; Load the kernel from disk int 0x1000:0x0000
+; Load the kernel from disk into 0x1000:0x0000
 loadKernel:
   ; Memory arguments
   mov ax, 0x1000  ; Segment
@@ -69,14 +78,45 @@ loadKernel:
   call printString
   jmp hang
 
+
+; Load the shell from disk into 0x2000:0x2000
+loadShell:
+  ; Memory arguments
+  mov ax, 0x2000 ; Segment
+  mov es, ax
+  mov bx, 0x1000 ; Offset
+  ; Disk arguments
+  mov al, 4      ; Read 4 sectors
+  mov ch, 0      ; Cylinder 0
+  mov cl, 13     ; Sector 13 (13-16)
+  mov dh, 0      ; Head 0
+  mov dl, 0x00   ; Floppy drive
+
+  ; Call BIOS interupt
+  mov ah, 0x02
+  int 0x13
+
+  ; Error handling
+  jc .readFail
+  ret
+; Carray flag check
+.readFail:
+  mov si, failedShellLoadMsg
+  call printString
+  jmp hang
+
+
 ; Backup hang function
 hang:
   jmp $ 
 
 ; DATA SECTION
 bootManageEntryMsg db "[+] Bootmanager loaded", STREND
+
 loadingKernelMsg db "[*] Loading kernel", STREND
+loadingShellMsg db "[*] Loading shell", STREND
 failedKernelLoadMsg db "[-] Error loading kernel - 3", STREND
+failedShellLoadMsg db "[-] Error loading shell - 4", STREND
 
 
 ; Pad to 4 sectors

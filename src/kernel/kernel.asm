@@ -2,19 +2,40 @@
 
 %define STREND 0x0D, 0x0A, 0x00
 
-; Kernel entry
+; Kernel entry, check for syscalls
 kernelEntry:
   ; Setup segment
   mov ax, 0x1000
   mov ds, ax
   mov es, ax
 
-  ; Kernel code control reached message
-  mov si, kernelEntryMessage
+  ; Check syscalls
+  ; Syscall 1: Kernel first run
+  cmp bl, 1
+  je kernelFirstRun
+
+  ; Syscall 2: Print string
+  cmp bl, 2
+  je .printStringHandler
+
+
+  ; Return far across segment to caller
+  retf
+
+; HANDLER FUNCTIONS
+; Print function handler
+.printStringHandler:
+  call printString ; Call the function
+  retf             ; Far return across segment
+
+; Function that runs on kernel first run
+kernelFirstRun:
+  ; Print message to show kernel is running  
+  mov si, kernelEntryMsg
   call printString
 
-  ; Hang system
-  jmp hang
+  ; Give control to the shell
+  jmp 0x2000:0x2000
 
 
 ; Print function - Print the string stored in SI
