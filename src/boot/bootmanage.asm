@@ -84,7 +84,7 @@ loadShell:
   ; Memory arguments
   mov ax, 0x2000 ; Segment
   mov es, ax
-  mov bx, 0x1000 ; Offset
+  mov bx, 0x2000 ; Offset
   ; Disk arguments
   mov al, 4      ; Read 4 sectors
   mov ch, 0      ; Cylinder 0

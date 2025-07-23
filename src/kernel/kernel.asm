@@ -1,38 +1,63 @@
 [org 0x0000]
-
 %define STREND 0x0D, 0x0A, 0x00
 
 ; Kernel entry, check for syscalls
 kernelEntry:
-  ; Setup segment
+  ; Save caller's segment registers
+  push ds
+  push es
+  
+  ; Setup kernel segments
   mov ax, 0x1000
   mov ds, ax
   mov es, ax
-
+  
   ; Check syscalls
   ; Syscall 1: Kernel first run
   cmp bl, 1
   je kernelFirstRun
-
   ; Syscall 2: Print string
   cmp bl, 2
   je .printStringHandler
-
   ; Syscall 3: Input
   cmp bl, 3
   je .getInputHandler
-
-  ; Return far across segment to caller
+  
+  ; Restore caller's segments and return
+  pop es
+  pop ds
   retf
 
 ; HANDLER FUNCTIONS
-; Print function handler
+; Print function handler - Fixed to handle cross-segment strings
 .printStringHandler:
-  call printString ; Call the function
-  retf             ; Far return across segment
+  push bx            ; Preserve BX register
+  push ds            ; Save current DS
+  ; Set DS to caller's segment (0x2000 for shell)
+  mov ax, 0x2000
+  mov ds, ax
+  
+  call printString   ; Call the function
+  
+  pop ds             ; Restore DS
+  pop bx             ; Restore BX register
+  ; Restore caller's segments and return
+  pop es
+  pop ds
+  retf               ; Far return across segment
 
 .getInputHandler:
+  push bx            ; Preserve BX register
+  push ds            ; Save current DS
+  ; Set DS to caller's segment (0x2000 for shell)
+  mov ax, 0x2000
+  mov ds, ax
   call getInput
+  pop ds             ; Restore DS
+  pop bx             ; Restore BX register
+  ; Restore caller's segments and return
+  pop es
+  pop ds
   retf
 
 ; Function that runs on kernel first run
@@ -41,10 +66,13 @@ kernelFirstRun:
   ; Kernel code control reached message
   mov si, kernelEntryMsg
   call printString
-
+  
+  ; Restore segments before jumping to shell
+  pop es
+  pop ds
+  
   ; Give control to the shell
   jmp 0x2000:0x2000
-
 
 ; Print function - Print the string stored in SI
 printString:
@@ -55,7 +83,7 @@ printString:
   or al, al      ; Check for null terminator
   jz .done       ; Conditional finish
   mov ah, 0x0E   ; BIOS tty print value
-  int 0x10       ; Call interupt
+  int 0x10       ; Call interrupt
   jmp .printLoop ; Continue loop
 .done:
   pop si         ; Return used registers and return
@@ -69,28 +97,35 @@ getInput:
 .inputLoop:
   ; Use BIOS for getting a key of input
   mov ah, 0x00   ; BIOS blocking input
-  int 0x16       ; Call BIOS interupt
-
+  int 0x16       ; Call BIOS interrupt
+  
   ; Check if the byte written to AL was enter key (0x0D)
   cmp al, 0x0D
   je .done
-
+  
   ; Echo the character back
   mov ah, 0x0E   ; BIOS tty print
-  int 0x10       ; Call interupt for tty print
+  int 0x10       ; Call interrupt for tty print
+  jmp .inputLoop ; Continue getting input
+  
 .done:
-  pop ax         ; Return register state and return
-  pop si
+  ; Print newline after enter
+  mov al, 0x0D
+  mov ah, 0x0E
+  int 0x10
+  mov al, 0x0A
+  int 0x10
+  
+  pop si         ; Return register state and return
+  pop ax
   ret
 
 ; Backup hang function
 hang:
   jmp $
 
-
 ; DATA SECTION
 kernelEntryMsg db "[+] Kernel code execution reached", STREND
-
 
 ; Pad the kernel to 6 sectors
 times 3072 - ($ - $$) db 0
