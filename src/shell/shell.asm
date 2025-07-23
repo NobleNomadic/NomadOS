@@ -17,6 +17,18 @@ shellEntry:
   ; Jump to the main shell loop
   jmp shellLoop
 
+
+; Clear command - Reset video mode with BIOS
+clearCommand:
+  ; Use BIOS interupt to clear screen
+  mov ah, 0x00
+  mov al, 0x03        ; 80x25 color text mode
+  int 0x10            ; Call interupt
+
+  ; Return to the shell loop
+  jmp shellLoop
+
+
 ; Main shell loop
 ; - Print prompt
 ; - Get input
@@ -28,42 +40,35 @@ shellLoop:
   mov byte bl, 2      ; Syscall for print
   call 0x1000:0x0000  ; Kernel address
 
+
   ; Syscall 3 for input
   mov si, inputBuffer ; Get input into the inputBuffer variable
   mov byte bl, 3      ; Use syscall 3 for input
   call 0x1000:0x0000  ; Call kernel address
 
-  ; Check if the user typed "test" to test syscall 4
-  mov si, inputBuffer ; Compare the input with the test string
-  mov di, testString
-  mov byte bl, 4      ; Syscall for string comparison
-  call 0x1000:0x0000  ; Call kernel
+  ; Check if the command was "clear" using syscall 4
+  mov si, inputBuffer ; The input that was entererd
+  mov di, clearCmd    ; String to compare against
+  mov byte bl, 4      ; Syscall 4 for compare strings
+  call 0x1000:0x0000  ; Kernel location for syscall
 
+  ; Check the value of AX - if 1, then the user typed "clear"
   cmp ax, 1
-  je .testGood
-
-  mov si, testFail
-  mov byte bl, 2
-  call 0x1000:0x0000
+  je clearCommand
 
   ; Continue shell loop
   jmp shellLoop
 
-.testGood:
-  mov si, testGood
-  mov byte bl, 2
-  call 0x1000:0x0000
-  jmp shellLoop
-
 ; DATA SECTION
+; Strings
 shellPrompt db "[>]", STREND ; Prompt to print each loop of shell
 shellLoadedMsg db "[+] Shell loaded", STREND ; Debug message to prove shell loaded
+
+; Input buffer
 inputBuffer times 256 db 0
 
-; STRING COMPARE TESTING
-testString db "test", STREND ; String to check if the user typed
-testGood db "test success", STREND
-testFail db "test fail", STREND
+; Command names
+clearCmd db "clear", STREND
 
 ; Pad shell to 4 sectors
 times 2048 - ($ - $$) db 0
