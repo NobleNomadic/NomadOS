@@ -17,17 +17,40 @@ shellEntry:
   ; Jump to the main shell loop
   jmp shellLoop
 
-; Clear command - Reset video mode with BIOS
-; In future, commands will load a file from the disk and run them, with this code being like a handler
+; Clear command - Load and run clear program
 clearCommand:
-  ; Use BIOS interupt to clear screen
-  mov ah, 0x00
-  mov al, 0x03        ; 80x25 color text mode
-  int 0x10            ; Call interupt
+  ; Load into memory
+  ; Memory args
+  mov ax, 0x2000 ; Segment
+  mov es, ax
+  mov bx, 0x4000 ; Offset
+  ; Disk args
+  mov al, 1      ; Read 1 sector
+  mov ch, 0      ; Cylinder 0
+  mov cl, 17     ; Sector 17
+  mov dh, 0      ; Head 0
+  mov dl, 0x00   ; Floppy drive
+  ; Call BIOS
+  mov ah, 0x02
+  int 0x13
+
+  ; Error handling
+  jc programLoadFail
+
+  ; Call loaded code
+  call 0x2000:0x4000
 
   ; Return to the shell loop
   jmp shellLoop
 
+; General error for when carry flag set during loading a program
+programLoadFail:
+  ; Print error message
+  mov si, shellProgramLoadFail ; Error message string to print
+  mov byte bl, 2               ; Use syscall 2 - print
+  call 0x1000:0x0000           ; Call kernel
+  ; Continue shell loop
+  jmp shellLoop
 
 ; Main shell loop
 ; - Print prompt
@@ -62,6 +85,7 @@ shellLoop:
 ; Strings
 shellPrompt db "[>]", STREND ; Prompt to print each loop of shell
 shellLoadedMsg db "[+] Shell loaded", STREND ; Debug message to prove shell loaded
+shellProgramLoadFail db "[-] Error loading program - 5", STREND ; Carry flag set when loading program
 ; Input buffer
 inputBuffer times 256 db 0
 ; Commands
