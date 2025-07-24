@@ -49,35 +49,27 @@ shellLoop:
   mov byte bl, 2      ; Syscall for print
   call 0x1000:0x0000  ; Kernel address
 
-
   ; Syscall 3 for input
   mov si, inputBuffer ; Get input into the inputBuffer variable
   mov byte bl, 3      ; Use syscall 3 for input
   call 0x1000:0x0000  ; Call kernel address
 
-  ; Check if the command was "clear" using syscall 4
-  mov si, inputBuffer ; The input that was entererd
-  mov di, clearCmd    ; String to compare against
-  mov byte bl, 4      ; Syscall 4 for compare strings
-  call 0x1000:0x0000  ; Kernel location for syscall
-
-  ; Check the value of AX - if 1, then the user typed "clear"
-  cmp ax, 1
+  ; Check if the user typed "clear" to clear screen with syscall 5
+  mov si, inputBuffer ; String 1
+  mov di, clearCmd    ; String 2
+  mov byte bl, 5      ; Syscall 5 for string comparison
+  call 0x1000:0x0000  ; Call address of kernel
+  ; Check AX value
+  cmp al, 1
   je clearCommand
 
   ; Continue shell loop
   jmp shellLoop
 
 ; DATA SECTION
-; Strings
 shellPrompt db "[>]", STREND ; Prompt to print each loop of shell
 shellLoadedMsg db "[+] Shell loaded", STREND ; Debug message to prove shell loaded
-
-; Input buffer
 inputBuffer times 256 db 0
-
-; Command names
-clearCmd db "clear", STREND
 
 ; Pad shell to 4 sectors
 times 2048 - ($ - $$) db 0
