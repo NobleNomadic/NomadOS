@@ -25,7 +25,11 @@ kernelEntry:
   ; Syscall 4: Compare strings
   cmp bl, 4
   je .compareStringsHandler
-  
+  ; Syscall 5: Put char to screen with video memory
+  cmp bl, 5
+  je .putCharHandler
+
+
   ; Restore caller's segments and return
   pop es
   pop ds
@@ -77,7 +81,25 @@ kernelEntry:
   pop ds
   retf
 
-; Function that runs on kernel first run
+; Put character handler
+.putCharHandler:
+  push bx            ; Preserver BX register
+  push ds            ; Save current DS
+  ; Set DS to callers segment (0x2000) for shell and user programs
+  mov ax, 0x2000
+  mov ds, ax
+  call putChar
+  pop ds             ; Restore DS 
+  pop bx             ; Restore BX
+  ; Restore caller segments and return across segment
+  pop es
+  pop ds
+  retf
+
+; SYSCALLS
+; ;;;;;;;;
+
+; Syscall 1: Function that runs on kernel first run
 kernelFirstRun:
   ; Print message to show kernel is running  
   ; Kernel code control reached message
@@ -91,7 +113,7 @@ kernelFirstRun:
   ; Give control to the shell
   jmp 0x2000:0x2000
 
-; Print function - Print the string stored in SI
+; Syscall 2: Print function - Print the string stored in SI
 printString:
   push ax        ; Push used registers
   push si
@@ -107,7 +129,7 @@ printString:
   pop ax
   ret
 
-; Input function - Get a line of input and write to the variable in SI
+; Syscall 3: Input function - Get a line of input and write to the variable in SI
 getInput:
   push ax        ; Push used registers
   push si
@@ -115,7 +137,7 @@ getInput:
   ; Use BIOS for getting a key of input
   mov ah, 0x00   ; BIOS blocking input
   int 0x16       ; Call BIOS interrupt
-  
+
   ; Check if the byte written to AL was enter key (0x0D)
   cmp al, 0x0D
   je .done
@@ -128,7 +150,7 @@ getInput:
   mov ah, 0x0E   ; BIOS tty print
   int 0x10       ; Call interrupt for tty print
   jmp .inputLoop ; Continue getting input
-  
+
 .done:
   ; Add newline and null terminator to SI
   mov byte [si], 0x0D
@@ -149,7 +171,7 @@ getInput:
   pop ax
   ret
 
-; Compare strings function - Compare the strings in SI and DI, return 1 or 0 in AX
+; Syscall 4: Compare strings function - Compare the strings in SI and DI, return 1 or 0 in AX
 compareStrings:
     push cx            ; Preserve registers
     xor ax, ax         ; Default to AX = 0 (false)
@@ -165,6 +187,42 @@ compareStrings:
     mov ax, 1          ; Strings match, set AX = 1
 .done:
     pop cx             ; Restore registers
+    ret
+
+; Syscall 5: Print a coloured character to a chosen x and y position
+; Inputs:
+;   AL = character to write
+;   BH = color attribute (e.g., 0x1F for white on blue)
+;   DH = Y position (row) [0-24]
+;   DL = X position (column) [0-79]
+putChar:
+    push ax
+    push bx
+    push cx
+    push dx
+    push es
+
+    mov ax, 0xB800      ; segment for color text mode
+    mov es, ax
+
+    xor ax, ax          ; clear AX for calculations
+    mov al, dh          ; row
+    mov cl, 80
+    mul cl              ; AX = row * 80
+    add al, dl          ; column
+    adc ah, 0           ; add carry if needed
+    shl ax, 1           ; multiply by 2 (each char = 2 bytes)
+
+    mov di, ax          ; offset in video memory
+    mov ah, bh          ; color attribute
+    mov al, al          ; character already in AL
+    stosw               ; write AX to ES:DI (char + attr)
+
+    pop es              ; Return register state and return
+    pop dx
+    pop cx
+    pop bx
+    pop ax
     ret
 
 

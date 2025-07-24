@@ -8,6 +8,14 @@ shellEntry:
   mov ax, 0x2000
   mov ds, ax
   mov es, ax
+
+  ; Use syscall 5 and print a char
+  mov byte al, 'T'    ; Character to write
+  mov bh, 0x5         ; Colour attribute
+  mov dh, 10          ; X position
+  mov dl, 10          ; Y position
+  mov byte bl, 5      ; Syscall 5 for put char
+  call 0x1000:0x0000
   
   ; Print shell entry message
   mov si, shellLoadedMsg ; Message to print
@@ -19,6 +27,7 @@ shellEntry:
 
 
 ; Clear command - Reset video mode with BIOS
+; In future, commands will load a file from the disk and run them, with this code being like a handler
 clearCommand:
   ; Use BIOS interupt to clear screen
   mov ah, 0x00
