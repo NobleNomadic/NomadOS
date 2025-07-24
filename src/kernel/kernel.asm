@@ -25,10 +25,6 @@ kernelEntry:
   ; Syscall 4: Compare strings
   cmp bl, 4
   je .compareStringsHandler
-  ; Syscall 5: Put char to screen with video memory
-  cmp bl, 5
-  je .putCharHandler
-
 
   ; Restore caller's segments and return
   pop es
@@ -77,21 +73,6 @@ kernelEntry:
   pop ds             ; Restore DS
   pop bx             ; Restore BX register
   ; Restore caller segments and return
-  pop es
-  pop ds
-  retf
-
-; Put character handler
-.putCharHandler:
-  push bx            ; Preserver BX register
-  push ds            ; Save current DS
-  ; Set DS to callers segment (0x2000) for shell and user programs
-  mov ax, 0x2000
-  mov ds, ax
-  call putChar
-  pop ds             ; Restore DS 
-  pop bx             ; Restore BX
-  ; Restore caller segments and return across segment
   pop es
   pop ds
   retf
@@ -188,43 +169,6 @@ compareStrings:
 .done:
     pop cx             ; Restore registers
     ret
-
-; Syscall 5: Print a coloured character to a chosen x and y position
-; Inputs:
-;   AL = character to write
-;   BH = color attribute (e.g., 0x1F for white on blue)
-;   DH = Y position (row) [0-24]
-;   DL = X position (column) [0-79]
-putChar:
-    push ax
-    push bx
-    push cx
-    push dx
-    push es
-
-    mov ax, 0xB800      ; segment for color text mode
-    mov es, ax
-
-    xor ax, ax          ; clear AX for calculations
-    mov al, dh          ; row
-    mov cl, 80
-    mul cl              ; AX = row * 80
-    add al, dl          ; column
-    adc ah, 0           ; add carry if needed
-    shl ax, 1           ; multiply by 2 (each char = 2 bytes)
-
-    mov di, ax          ; offset in video memory
-    mov ah, bh          ; color attribute
-    mov al, al          ; character already in AL
-    stosw               ; write AX to ES:DI (char + attr)
-
-    pop es              ; Return register state and return
-    pop dx
-    pop cx
-    pop bx
-    pop ax
-    ret
-
 
 ; Backup hang function
 hang:
