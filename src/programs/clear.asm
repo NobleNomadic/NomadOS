@@ -2,8 +2,9 @@
 [org 0x4000]
 [bits 16]
 
-
+; Entry point
 clearEntry:
+  ; Save registers
   pusha
   push ds
   ; Setup segment
@@ -11,12 +12,12 @@ clearEntry:
   mov ds, ax
   mov es, ax
 
-  ; Reset video mode
+  ; Reset video mode to clear the screen
   mov ah, 0x00
   mov al, 0x03 ; 80x25 color text mode
   int 0x10     ; Call interupt
 
-  ; Return to caller
+  ; Return to caller across segment after returning register state
   pop ds
   popa
   retf

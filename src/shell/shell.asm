@@ -33,14 +33,75 @@ clearCommand:
   ; Call BIOS
   mov ah, 0x02
   int 0x13
-
   ; Error handling
   jc programLoadFail
-
   ; Call loaded code
   call 0x2000:0x4000
 
   ; Return to the shell loop
+  jmp shellLoop
+
+echoCommand:
+  ; Load into memory
+  mov ax, 0x2000 ; Segment
+  mov es, ax
+  mov bx, 0x4000 ; Offset
+  ; Disk args
+  mov al, 1      ; Read 1 sector
+  mov ch, 0      ; Cylinder 0
+  mov cl, 18     ; Sector 18
+  mov dh, 0      ; Head 0
+  mov dl, 0x00   ; Floppy drive
+  ; Call BIOS
+  mov ah, 0x02
+  int 0x13
+  ; Error handling
+  jc programLoadFail
+  ; Call loaded code
+  call 0x2000:0x4000
+
+  jmp shellLoop
+
+helpCommand:
+  ; Load into memory
+  mov ax, 0x2000 ; Segment
+  mov es, ax
+  mov bx, 0x4000 ; Offset
+  ; Disk args
+  mov al, 1      ; Read 1 sector
+  mov ch, 0      ; Cylinder 0
+  mov cl, 1      ; Sector 1
+  mov dh, 1      ; Head 1
+  mov dl, 0x00   ; Floppy drive
+  ; Call BIOS
+  mov ah, 0x02
+  int 0x13
+  ; Error handling
+  jc programLoadFail
+  ; Call loaded code
+  call 0x2000:0x4000
+
+  jmp shellLoop
+
+fetchCommand:
+  ; Load into memory
+  mov ax, 0x2000 ; Segment
+  mov es, ax
+  mov bx, 0x4000 ; Cylinder 0
+  ; Disk args
+  mov al, 1      ; Read 1 sector
+  mov ch, 0      ; Cylinder 0
+  mov cl, 2      ; Sector 2
+  mov dh, 1      ; Head 1
+  mov dl, 0x00   ; Floppy drive
+  ; Call BIOS
+  mov ah, 0x02
+  int 0x13
+  ; Error handling
+  jc programLoadFail
+  ; Call loaded code
+  call 0x2000:0x4000
+
   jmp shellLoop
 
 ; General error for when carry flag set during loading a program
@@ -68,15 +129,42 @@ shellLoop:
   mov byte bl, 3      ; Use syscall 3 for input
   call 0x1000:0x0000  ; Call kernel address
 
-  ; Check if the user typed "clear"
+  ; COMMAND CHECKING
+  ; CLEAR COMMAND
   mov si, inputBuffer ; Compare the input with the command string
   mov di, clearCmd    ; String to compare against
   mov byte bl, 4      ; Syscall for string comparison
   call 0x1000:0x0000  ; Call kernel
-
   ; Check result in AX
   cmp ax, 1
   je clearCommand
+
+  ; ECHO COMMAND
+  mov si, inputBuffer ; Input string
+  mov di, echoCmd     ; Echo command name
+  mov byte bl, 4      ; Syscall for string comparison
+  call 0x1000:0x0000  ; Call the kernel
+  ; Check result in AX
+  cmp ax, 1
+  je echoCommand
+
+  ; HELP COMMAND
+  mov si, inputBuffer ; Input string
+  mov di, helpCmd     ; Help command name
+  mov byte bl, 4      ; Syscall for string comparison
+  call 0x1000:0x0000  ; Call kernel
+  ; Check result in AX
+  cmp ax, 1
+  je helpCommand
+
+  ; FETCH COMMAND
+  mov si, inputBuffer ; Input string
+  mov di, fetchCmd    ; Fetch command name
+  mov byte bl, 4      ; Syscall for string comparison
+  call 0x1000:0x0000  ; Call kernel
+  ; Check result in AX
+  cmp ax, 1
+  je fetchCommand
 
   ; Continue shell loop
   jmp shellLoop
@@ -90,6 +178,9 @@ shellProgramLoadFail db "[-] Error loading program - 5", STREND ; Carry flag set
 inputBuffer times 256 db 0
 ; Commands
 clearCmd db "clear", STREND ; Command to clear screen
+echoCmd db "echo", STREND ; Command to echo a message
+helpCmd db "help", STREND ; Command to print help message
+fetchCmd db "fetch", STREND ; Command to show system info
 
 ; Pad shell to 4 sectors
 times 2048 - ($ - $$) db 0

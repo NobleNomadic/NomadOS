@@ -22,6 +22,9 @@ The [shell](src/shell/) is the main userspace system and allows the user to type
 | 6-12    | `kernel.asm`     |
 | 13-16   | `shell.asm`      |
 | 17      | `clear.asm`      |
+| 18      | `echo.asm`       |
+| 19      | `help.asm`       |
+| 20      | `fetch.asm`      |
 
 ## Syscalls
 | Value | Purpose                        | Arguments                          |
@@ -46,3 +49,4 @@ The [shell](src/shell/) is the main userspace system and allows the user to type
 - **0x0000:0x2000**: bootmanage.asm
 - **0x1000:0x0000**: kernel.asm
 - **0x2000:0x2000**: shell.asm
+- **0x2000:0x4000**: Current user program
