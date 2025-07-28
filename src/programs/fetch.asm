@@ -41,6 +41,7 @@ fetchEntry:
   popa
   retf
 
+; Data section - Message to print
 fetchLine1 db STREND
 fetchLine2 db "     ^     OS:         Nomad OS", STREND
 fetchLine3 db "      *    Kernel:     Noble Kernel 1.0", STREND
@@ -48,3 +49,6 @@ fetchLine4 db "       *   Bootloader: Noble B Manager 0.9", STREND
 fetchLine5 db "        *  Shell:      Noble Shell 1.0", STREND
 fetchLine6 db "<        > Programs:   Noble Utils 1.0", STREND
 fetchLine7 db STREND
+
+; Pad to 1 sector
+times 512 - ($ - $$) db 0
