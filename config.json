@@ -1,0 +1,28 @@
+{
+  "objects": {
+    "boot": {
+      "src": "src/boot/boot.asm",
+      "bin": "build/boot/boot.bin",
+      "sector": 1,
+      "sectors": "1",
+      "mem": "0x0000:0x7C00",
+      "chs": {
+        "c": 0,
+        "h": 0,
+        "s": 1
+      }
+    },
+    "bootmanage": {
+      "src": "src/boot/bootmanage.asm",
+      "bin": "build/boot/bootmanage.asm",
+      "sector": 2,
+      "sectors": 1,
+      "mem": "0x0000:0x1000",
+      "chs": {
+        "c": 0,
+        "h": 0,
+        "s": 2
+      }
+    }
+  }
+}

@@ -1,4 +1,0 @@
-{
-  "//CALL_KERNEL": "call 0x1000:0x0000\n",
-  "//LOAD_KERNEL": "  mov ax, 0x1000\n  mov es, ax\n  mov bx, 0x0000\n  mov al, 6\n  mov ch, 0\n  mov cl, 3\n  mov dh, 0\n  mov dl, 0x00\n  mov ah, 0x02\n  int 0x13\n"
-}
