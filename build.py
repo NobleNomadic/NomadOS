@@ -62,10 +62,10 @@ def preprocess(srcFile, dstFile, config):
         ])
       elif directive == "CALL":
         newLines.append(f"  ; CALL_{objName}\n")
-        newLines.append(f"  call 0x{off:04X}\n")
+        newLines.append(f"  call 0x{seg:04X}:0x{off:04X}\n")
       elif directive == "JUMP":
         newLines.append(f"  ; JUMP_{objName}\n")
-        newLines.append(f"  jmp 0x{off:04X}\n")
+        newLines.append(f"  jmp 0x{seg:04X}:0x{off:04X}\n")
       else:
         raise Exception(f"Unknown directive: {directive}")
     else:

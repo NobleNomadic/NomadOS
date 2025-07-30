@@ -33,7 +33,7 @@ bootEntry:
   mov al, 1
   int 0x13
   ; JUMP_bootmanage
-  jmp 0x1000
+  jmp 0x0000:0x1000
 
 ; Print the string stored in SI
 printString:

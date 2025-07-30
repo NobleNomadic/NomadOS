@@ -1,5 +1,8 @@
+; bootmanage.asm - Second stage of bootloader
 [org 0x1000]
 [bits 16]
+
+%define STREND 0x0D, 0x0A, 0x00
 
 ; Entry point
 bootManageEntry:
@@ -8,10 +11,36 @@ bootManageEntry:
   mov ds, ax
   mov es, ax
 
-  ; Print debug char
-  mov ah, 0x0E
-  mov al, "!"
-  int 0x10
+  ; Print entry message
+  mov si, bootManagerEntryMsg
+  call printString
+
+  ; Load the kernel into memory
+  ;LOAD_kernel
+
+  ; Give control to the kernel with syscall 0
+  mov byte bl, 0
+  ;JUMP_kernel
+
+; Print function to print the string in SI
+printString:
+  push ax      ; Push used registers
+  push si
+.printLoop:
+  lodsb          ; Load next byte into AL
+  or al, al      ;  Check for null terminator
+  jz .done       ; Conditional finish
+  mov ah, 0x0E   ; BIOS tty print
+  int 0x10       ; Call BIOS
+  jmp .printLoop ; Continue loop
+.done:
+  pop si         ; Return registers and return
+  pop ax
+  ret
+
+; DATA SECTION
+bootManagerEntryMsg db "[*] Boot manager loaded", STREND
+kernelSyscallTestMsg db "[+] Kernel syscalls setup", STREND
 
 ; Pad to 1 sector
 times 512 - ($ - $$) db 0

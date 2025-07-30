@@ -14,7 +14,7 @@
     },
     "bootmanage": {
       "src": "src/boot/bootmanage.asm",
-      "bin": "build/boot/bootmanage.asm",
+      "bin": "build/boot/bootmanage.bin",
       "sector": 2,
       "sectors": 1,
       "mem": "0x0000:0x1000",
@@ -22,6 +22,18 @@
         "c": 0,
         "h": 0,
         "s": 2
+      }
+    },
+    "kernel": {
+      "src": "src/kernel/kernel.asm",
+      "bin": "build/kernel/kernel.bin",
+      "sector": 3,
+      "sectors": 4,
+      "mem": "0x1000:0x0000",
+      "chs": {
+        "c": 0,
+        "h": 0,
+        "s": 3
       }
     }
   }
