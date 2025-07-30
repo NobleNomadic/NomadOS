@@ -13,7 +13,7 @@ kernelEntry:
   cmp bl, 0              ; Syscall 0: Setup kernel
   je kernelSetup
 
-  cmp bl, 1              ; Syscall 1: Print string
+  cmp bl, 1              ; Syscall 1: Print string for user programs in sector 0x2000
   je .printStringHandler
 
   ; No syscall, return far across segment
@@ -22,8 +22,8 @@ kernelEntry:
 
 ; SYSCALL HANDLERS
 .printStringHandler:
-  ; Move to correct segment
-  mov ax, 0x0000
+  ; Move to correct segment (All user programs are stored in 0x2000:0xXXXX)
+  mov ax, 0x2000
   mov ds, ax
   mov es, ax
   call printString ; Call print function
