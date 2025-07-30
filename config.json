@@ -35,6 +35,18 @@
         "h": 0,
         "s": 3
       }
+    },
+    "shell": {
+      "src": "src/programs/shell.asm",
+      "bin": "build/programs/shell.asm",
+      "sector": 7,
+      "sectors": 4,
+      "mem": "0x2000:0x0000",
+      "chs": {
+        "c": 0,
+        "h": 0,
+        "s": 7
+      }
     }
   }
 }

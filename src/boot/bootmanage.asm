@@ -18,6 +18,9 @@ bootManageEntry:
   ; Load the kernel into memory
   ;LOAD_kernel
 
+  ; Load the first userland program into memory (Typically shell)
+  ;LOAD_shell
+
   ; Give control to the kernel with syscall 0
   mov byte bl, 0
   ;JUMP_kernel
@@ -37,6 +40,10 @@ printString:
   pop si         ; Return registers and return
   pop ax
   ret
+
+; Fallback hang function
+hang:
+  jmp $
 
 ; DATA SECTION
 bootManagerEntryMsg db "[*] Boot manager loaded", STREND

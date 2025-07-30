@@ -36,12 +36,14 @@ kernelEntry:
 kernelSetup:
   push si                ; Push used registers
 
+  ; Load any kernel modules here
+
   ; Use print function to display kernel entry message
   mov si, kernelEntryMsg
   call printString
 
-  ; Give control to the main user program (Default to shell)
-  jmp $
+  ; Give control to the first program in userland(Typically the shell)
+  jmp 0x2000:0x0000
 
 
 ; Syscall 1: print string in SI
@@ -59,6 +61,10 @@ printString:
   pop si         ; Return register state and return
   pop ax
   ret
+
+; Fallback hang function
+hang:
+  jmp $
 
 
 ; DATA SECTION
