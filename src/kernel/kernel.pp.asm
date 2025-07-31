@@ -87,7 +87,8 @@ kernelSetup:
   call printString
 
   ; Give control to the first program in userland (Typically the shell)
-  ;JUMP_shell
+  ; JUMP_shell
+  jmp 0x2000:0x0000
 
 
 ; Syscall 1: Print string in SI

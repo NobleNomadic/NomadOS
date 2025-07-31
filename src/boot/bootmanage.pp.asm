@@ -16,14 +16,35 @@ bootManageEntry:
   call printString
 
   ; Load the kernel into memory
-  ;LOAD_kernel
+  ; LOAD_kernel
+  mov ch, 0
+  mov cl, 3
+  mov dh, 0
+  mov dl, 0x00
+  mov bx, 0x0000
+  mov ax, 0x1000
+  mov es, ax
+  mov ah, 0x02
+  mov al, 4
+  int 0x13
 
   ; Load the first userland program into memory (Typically shell)
-  ;LOAD_shell
+  ; LOAD_shell
+  mov ch, 0
+  mov cl, 7
+  mov dh, 0
+  mov dl, 0x00
+  mov bx, 0x0000
+  mov ax, 0x2000
+  mov es, ax
+  mov ah, 0x02
+  mov al, 4
+  int 0x13
 
   ; Give control to the kernel with syscall 0
   mov byte bl, 0
-  ;JUMP_kernel
+  ; JUMP_kernel
+  jmp 0x1000:0x0000
 
 ; Print function to print the string in SI
 printString:

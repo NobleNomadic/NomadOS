@@ -21,8 +21,19 @@ bootEntry:
   call printString
 
   ; Load next sector into memory
-  ;LOAD_bootmanage
-  ;JUMP_bootmanage
+  ; LOAD_bootmanage
+  mov ch, 0
+  mov cl, 2
+  mov dh, 0
+  mov dl, 0x00
+  mov bx, 0x1000
+  mov ax, 0x0000
+  mov es, ax
+  mov ah, 0x02
+  mov al, 1
+  int 0x13
+  ; JUMP_bootmanage
+  jmp 0x0000:0x1000
 
 ; Print the string stored in SI
 printString:
