@@ -4,6 +4,7 @@
 
 %define STREND 0x0D, 0x0A, 0x00
 
+; Shell entry
 shellEntry:
   ; Setup segment data
   mov ax, 0x2000
@@ -20,6 +21,15 @@ shellEntry:
   jmp shellLoop
 
 
+; Commands - load program from disk and run
+; For now, programs are coded into shell
+clearCommand:
+  ; Reset video mode with BIOS
+  mov ah, 0x00
+  mov al, 0x03
+  int 0x10
+  jmp shellLoop
+
 shellLoop:
   ; Print prompt
   mov si, shellPromptMsg
@@ -33,11 +43,20 @@ shellLoop:
   ; CALL_kernel
   call 0x1000:0x0000
 
-  ; Echo the message
+  ; COMMAND CHECKING
+  ; Check for clear command with syscall 3
   mov si, buffer
-  mov byte bl, 1
+  mov di, clearCmd
+  mov byte bl, 3
   ; CALL_kernel
   call 0x1000:0x0000
+  ; Reset segment after calling kernel
+  mov bx, 0x2000
+  mov ds, ax
+  mov es, ax
+  ; Check AX result
+  cmp ax, 1
+  je clearCommand
 
   ; Continue loop
   jmp shellLoop
@@ -47,10 +66,14 @@ hang:
   jmp $
 
 ; DATA SECTION
+; Strings
 shellEntryMsg db "[+] Userpace syscalls setup", STREND ; Message to show that syscalls are working
 shellPromptMsg db "[>]", STREND ; Shell prompt message
 
 buffer times 256 db 0 ; Buffer for input
+
+; Command names
+clearCmd db "clear", STREND
 
 ; Pad to 4 sectors
 times 2048 - ($ - $$) db 0
