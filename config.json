@@ -47,6 +47,18 @@
         "h": 0,
         "s": 7
       }
+    },
+    "clearprogram": {
+      "src": "src/programs/clear.asm",
+      "bin": "build/programs/clear.bin",
+      "sector": 8,
+      "sectors": 1,
+      "mem": "0x2000:0x2000",
+      "chs": {
+        "c": 0,
+        "h": 0,
+        "s": 8
+      }
     }
   }
 }

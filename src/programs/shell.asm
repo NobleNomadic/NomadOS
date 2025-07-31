@@ -21,12 +21,9 @@ shellEntry:
 
 
 ; Commands - load program from disk and run
-; For now, programs are coded into shell
 clearCommand:
-  ; Reset video mode with BIOS
-  mov ah, 0x00
-  mov al, 0x03
-  int 0x10
+  ;LOAD_clearprogram
+  call 0x2000:0x2000
   jmp shellLoop
 
 shellLoop:

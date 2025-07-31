@@ -86,8 +86,8 @@ kernelSetup:
   mov si, kernelEntryMsg
   call printString
 
-  ; Give control to the first program in userland(Typically the shell)
-  jmp 0x2000:0x0000
+  ; Give control to the first program in userland (Typically the shell)
+  ;JUMP_shell
 
 
 ; Syscall 1: Print string in SI
