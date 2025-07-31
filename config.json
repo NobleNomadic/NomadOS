@@ -38,7 +38,7 @@
     },
     "shell": {
       "src": "src/programs/shell.asm",
-      "bin": "build/programs/shell.asm",
+      "bin": "build/programs/shell.bin",
       "sector": 7,
       "sectors": 4,
       "mem": "0x2000:0x0000",
