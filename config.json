@@ -59,6 +59,18 @@
         "h": 0,
         "s": 8
       }
+    },
+    "helpprogram": {
+      "src": "src/programs/help.asm",
+      "bin": "build/programs/help.bin",
+      "sector": 9,
+      "sectors": 1,
+      "mem": "0x2000:0x2000",
+      "chs": {
+        "c": 0,
+        "h": 0,
+        "s": 9
+      }
     }
   }
 }

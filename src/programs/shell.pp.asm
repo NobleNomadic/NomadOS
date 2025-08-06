@@ -34,8 +34,25 @@ clearCommand:
   mov ah, 0x02
   mov al, 1
   int 0x13
-
+  ; CALL_clearprogram
   call 0x2000:0x2000
+  jmp shellLoop
+
+helpCommand:
+  ; LOAD_helpprogram
+  mov ch, 0
+  mov cl, 9
+  mov dh, 0
+  mov dl, 0x00
+  mov bx, 0x2000
+  mov ax, 0x2000
+  mov es, ax
+  mov ah, 0x02
+  mov al, 1
+  int 0x13
+  ; CALL_helpprogram
+  call 0x2000:0x2000
+  jmp shellLoop
 
 shellLoop:
   ; Print prompt

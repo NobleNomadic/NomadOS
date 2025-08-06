@@ -23,7 +23,12 @@ shellEntry:
 ; Commands - load program from disk and run
 clearCommand:
   ;LOAD_clearprogram
-  call 0x2000:0x2000
+  ;CALL_clearprogram
+  jmp shellLoop
+
+helpCommand:
+  ;LOAD_helpprogram
+  ;CALL_helpprogram
   jmp shellLoop
 
 shellLoop:
@@ -51,6 +56,19 @@ shellLoop:
   cmp ax, 1
   je clearCommand
 
+  ; Check for help command with syscall 3
+  mov si, buffer
+  mov di, helpCmd
+  mov byte bl, 3
+  ;CALL_kernel
+  ; Reset segment after calling kernel
+  mov bx, 0x2000
+  mov ds, ax
+  mov es, ax
+  ; Check AX result
+  cmp ax, 1
+  je helpCommand
+
   ; Continue loop
   jmp shellLoop
 
@@ -67,6 +85,7 @@ buffer times 256 db 0 ; Buffer for input
 
 ; Command names
 clearCmd db "clear", STREND
+helpCmd db "help", STREND
 
 ; Pad to 4 sectors
 times 2048 - ($ - $$) db 0
