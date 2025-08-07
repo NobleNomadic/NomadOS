@@ -1,3 +1,4 @@
+; help.asm - Print help message
 [org 0x2000]
 [bits 16]
 
@@ -15,7 +16,10 @@ helpEntry:
   mov es, ax
 
   ; Print the help string to the screen with syscall 1
-  mov si, helpMsg
+  mov si, helpMsg ; Message to print
+  mov byte bl, 1  ; Syscall 1 for print
+  ; CALL_kernel
+  call 0x1000:0x0000
 
   ; Return to caller
   pop ds

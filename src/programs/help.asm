@@ -1,3 +1,4 @@
+; help.asm - Print help message
 [org 0x2000]
 [bits 16]
 

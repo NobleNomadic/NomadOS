@@ -82,6 +82,20 @@ shellLoop:
   cmp ax, 1
   je clearCommand
 
+  ; Check for help command with syscall 3
+  mov si, buffer
+  mov di, helpCmd
+  mov byte bl, 3
+  ; CALL_kernel
+  call 0x1000:0x0000
+  ; Reset segment after calling kernel
+  mov bx, 0x2000
+  mov ds, ax
+  mov es, ax
+  ; Check AX result
+  cmp ax, 1
+  je helpCommand
+
   ; Continue loop
   jmp shellLoop
 
@@ -98,6 +112,7 @@ buffer times 256 db 0 ; Buffer for input
 
 ; Command names
 clearCmd db "clear", STREND
+helpCmd db "help", STREND
 
 ; Pad to 4 sectors
 times 2048 - ($ - $$) db 0
