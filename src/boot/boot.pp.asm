@@ -22,8 +22,7 @@ bootEntry:
 
   ; Load next sector into memory
   ; LOAD_bootmanage
-  mov ch, 0
-  mov cl, 2
+  mov cx, 2
   mov dh, 0
   mov dl, 0x00
   mov bx, 0x1000

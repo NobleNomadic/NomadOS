@@ -17,8 +17,7 @@ bootManageEntry:
 
   ; Load the kernel into memory
   ; LOAD_kernel
-  mov ch, 0
-  mov cl, 3
+  mov cx, 3
   mov dh, 0
   mov dl, 0x00
   mov bx, 0x0000
@@ -30,8 +29,7 @@ bootManageEntry:
 
   ; Load the first userland program into memory (Typically shell)
   ; LOAD_shell
-  mov ch, 0
-  mov cl, 7
+  mov cx, 7
   mov dh, 0
   mov dl, 0x00
   mov bx, 0x0000
