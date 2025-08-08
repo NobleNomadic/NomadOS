@@ -29,7 +29,7 @@ bootManageEntry:
 
   ; Load the first userland program into memory (Typically shell)
   ; LOAD_shell
-  mov cx, 7
+  mov cx, 30
   mov dh, 0
   mov dl, 0x00
   mov bx, 0x0000

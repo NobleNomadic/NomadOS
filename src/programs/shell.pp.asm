@@ -24,7 +24,7 @@ shellEntry:
 ; Commands - load program from disk and run
 clearCommand:
   ; LOAD_clearprogram
-  mov cx, 30
+  mov cx, 31
   mov dh, 0
   mov dl, 0x00
   mov bx, 0x2000
@@ -39,7 +39,7 @@ clearCommand:
 
 helpCommand:
   ; LOAD_helpprogram
-  mov cx, 31
+  mov cx, 32
   mov dh, 0
   mov dl, 0x00
   mov bx, 0x2000

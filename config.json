@@ -21,24 +21,31 @@
       "sectors": 4,
       "mem": "0x1000:0x0000"
     },
+    "nnfsmodule": {
+      "src": "src/modules/nnfs.asm",
+      "bin": "build/modules/nnfs.bin",
+      "sector": 10,
+      "sectors": 4,
+      "mem": "0x1000:0x1000"
+    },
     "shell": {
       "src": "src/programs/shell.asm",
       "bin": "build/programs/shell.bin",
-      "sector": 7,
+      "sector": 30,
       "sectors": 4,
       "mem": "0x2000:0x0000"
     },
     "clearprogram": {
       "src": "src/programs/clear.asm",
       "bin": "build/programs/clear.bin",
-      "sector": 30,
+      "sector": 31,
       "sectors": 1,
       "mem": "0x2000:0x2000"
     },
     "helpprogram": {
       "src": "src/programs/help.asm",
       "bin": "build/programs/help.bin",
-      "sector": 31,
+      "sector": 32,
       "sectors": 1,
       "mem": "0x2000:0x2000"
     }

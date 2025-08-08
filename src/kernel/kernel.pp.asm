@@ -80,11 +80,28 @@ kernelEntry:
 kernelSetup:
   push si                ; Push used registers
 
-  ; Load any kernel modules here
-
   ; Use print function to display kernel entry message
   mov si, kernelEntryMsg
   call printString
+
+  ; Load any kernel modules here
+  ; NobleNomadic file system module
+  ; LOAD_nnfsmodule
+  mov cx, 10
+  mov dh, 0
+  mov dl, 0x00
+  mov bx, 0x1000
+  mov ax, 0x1000
+  mov es, ax
+  mov ah, 0x02
+  mov al, 4
+  int 0x13
+  mov byte bl, 0
+  ; CALL_nnfsmodule
+  call 0x1000:0x1000
+  mov ax, 0x1000
+  mov ds, ax
+  mov es, ax
 
   ; Give control to the first program in userland (Typically the shell)
   ; JUMP_shell
