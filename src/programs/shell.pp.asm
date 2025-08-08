@@ -94,6 +94,26 @@ shellLoop:
   cmp ax, 1
   je helpCommand
 
+  ; NNFS test syscall 1 to load test program into memory
+  ;mov bl, 1
+  ;mov dx, 20
+  ;;CALL_nnfsmodule
+  ;;CALL_testfile
+
+  ; NNFS test syscall 2 to write to disk
+  ; Write data to disk buffer at 0x2000:0x3000
+  mov ax, 0x2000
+  mov es, ax
+  mov di, 0x3000
+  mov cx, 512
+  mov al, "W"
+  rep stosb
+  ; Put data on disk
+  mov bl, 2
+  mov dx, 21
+  ; CALL_nnfsmodule
+  call 0x1000:0x1000
+
   ; Continue loop
   jmp shellLoop
 

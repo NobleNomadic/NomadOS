@@ -28,6 +28,13 @@
       "sectors": 4,
       "mem": "0x1000:0x1000"
     },
+    "testfile": {
+      "src": "src/modules/testfile.asm",
+      "bin": "build/modules/testfile.bin",
+      "sector": 20,
+      "sectors": 1,
+      "mem": "0x2000:0x3000"
+    },
     "shell": {
       "src": "src/programs/shell.asm",
       "bin": "build/programs/shell.bin",
