@@ -32,6 +32,10 @@ nnfsEntry:
   cmp bl, 2
   je .writeToFileHandler
 
+  ; Syscall 3: Get filesystem data
+  cmp bl, 3
+  je .getModuleDataHandler
+
   ; Return to caller
   pop ds
   popa
@@ -55,6 +59,13 @@ nnfsEntry:
 .writeToFileHandler:
   ; Call function
   call writeToFile
+  ; Return to caller
+  pop ds
+  popa
+  retf
+.getModuleDataHandler:
+  ; Call function
+  call getModuleData
   ; Return to caller
   pop ds
   popa
@@ -117,12 +128,21 @@ writeToFile:
   int 0x13
   ret
 
+; Syscall 3: Print filesystem data to standard out
+getModuleData:
+  ; Use kernel syscall 4 to print from kernel segment
+  mov si, nnfsDataMsg
+  mov byte bl, 4
+  ;CALL_kernel
+  ret
 
 ; DATA SECTION
 nnfsEntryMsg db "[+] NNFS mounted", STREND ; Message to print on syscall 0
 
-nnfsDataMsg db "NNFS module mounted at 0x1000:0x1000", NEWLIN, \
-               "Sector"
+nnfsDataMsg db "NNFS version 0.1", NEWLIN, \
+               "Module mount:      0x1000:0x1000", NEWLIN, \
+               "Allocated Sectors: 20 - 29", NEWLIN, \
+               "File Data Buffer:  0x2000:0x3000", STREND
 
 ; Pad to 4 sectors
 times 2048 - ($ - $$) db 0

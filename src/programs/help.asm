@@ -28,9 +28,11 @@ helpEntry:
 
 ; DATA SECTION
 ; Help message
-helpMsg db "Nomad OS util programs 0.1", NEWLIN, \
+helpMsg db "Noble util programs 0.1", NEWLIN, \
            "  help    - Print this message", NEWLIN, \
-           "  clear   - Clear screen", STREND
+           "  clear   - Clear screen", NEWLIN, NEWLIN, \
+           "Noble Nomadic File System 0.1", NEWLIN, \
+           "  ls      - Display file system info", STREND
 
 ; Pad to 1 sector
 times 512 - ($ - $$) db 0

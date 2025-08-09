@@ -52,6 +52,13 @@ helpCommand:
   call 0x2000:0x2000
   jmp shellLoop
 
+fsInfoCommand:
+  ; Use syscall 3 for print file system data
+  mov byte bl, 3
+  ; CALL_nnfsmodule
+  call 0x1000:0x1000
+  jmp shellLoop
+
 shellLoop:
   ; Print prompt
   mov si, shellPromptMsg
@@ -94,6 +101,22 @@ shellLoop:
   cmp ax, 1
   je helpCommand
 
+  ; Check for request filesystem data
+  mov si, buffer
+  mov di, fsInfoCmd
+  mov byte bl, 3
+  ; CALL_kernel
+  call 0x1000:0x0000
+  ; Reset segment
+  mov bx, 0x2000
+  mov ds, ax
+  mov es, ax
+  ; Check AX result
+  cmp ax, 1
+  je fsInfoCommand
+
+  ; NNFS TESTING
+  ; ;;;;;;;;;;;;
   ; NNFS test syscall 1 to load test program into memory
   ;mov bl, 1
   ;mov dx, 20
@@ -102,17 +125,20 @@ shellLoop:
 
   ; NNFS test syscall 2 to write to disk
   ; Write data to disk buffer at 0x2000:0x3000
-  mov ax, 0x2000
-  mov es, ax
-  mov di, 0x3000
-  mov cx, 512
-  mov al, "W"
-  rep stosb
-  ; Put data on disk
-  mov bl, 2
-  mov dx, 21
-  ; CALL_nnfsmodule
-  call 0x1000:0x1000
+  ;mov ax, 0x2000
+  ;mov es, ax
+  ;mov di, 0x3000
+  ;mov cx, 512
+  ;mov al, "W"
+  ;rep stosb
+  ;; Put data on disk
+  ;mov bl, 2
+  ;mov dx, 21
+  ;;CALL_nnfsmodule
+
+  ; NNFS test syscall 3 to get information for filesystem
+  ;mov byte bl, 3
+  ;;CALL_nnfsmodule
 
   ; Continue loop
   jmp shellLoop
@@ -128,9 +154,12 @@ shellPromptMsg db "[>]", STREND ; Shell prompt message
 
 buffer times 256 db 0 ; Buffer for input
 
-; Command names
+; Noble util Command names
 clearCmd db "clear", STREND
 helpCmd db "help", STREND
+
+; Filesystem info command
+fsInfoCmd db "ls", STREND
 
 ; Pad to 4 sectors
 times 2048 - ($ - $$) db 0
