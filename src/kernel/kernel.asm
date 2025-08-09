@@ -1,6 +1,15 @@
 ; kernel.asm - Main syscall handler
+[org 0x0000]
+[bits 16]
 
 %define STREND 0x0D, 0x0A, 0x00
+
+; Stdout data
+%define STDOUTSEG   0x1000
+%define STDOUTOFF   0x0800      ; right after 2KB kernel
+%define STDOUTSIZE  512         ; bytes of history
+
+stdoutPos dw 0
 
 ; Entry point
 kernelEntry:
@@ -99,19 +108,49 @@ kernelSetup:
 
 ; Syscall 1: Print string in SI
 printString:
-  push ax        ; Push used registers
-  push si
+    push ax ; Push used registers
+    push bx
+    push si
+    push ds
+    push es
+    push di
+
+    ; Reset the pointer to the stdout writer
+    mov byte [stdoutPos], 0
+
 .printLoop:
-  lodsb          ; Load next byte into AL
-  or al, al      ; Check for null terminator
-  jz .done       ; Conditional finish
-  mov ah, 0x0E   ; BIOS tty
-  int 0x10       ; Call BIOS
-  jmp .printLoop ; Continue loop
+    lodsb     ; Load next byte into AL
+    or al, al ; Check for null terminator
+    jz .done  ; Exit if last
+
+    ; Print to screen
+    mov ah, 0x0E
+    int 0x10
+
+    ; Store in stdout buffer
+    mov ax, STDOUTSEG
+    mov es, ax
+    mov bx, [stdoutPos]     ; BX = current position
+    mov di, STDOUTOFF
+    add di, bx
+    stosb                   ; ES:DI ← AL
+    inc bx
+    cmp bx, STDOUTSIZE
+    jb .savePos
+    xor bx, bx              ; wrap to start
+.savePos:
+    mov [stdoutPos], bx
+
+    jmp .printLoop
+
 .done:
-  pop si         ; Return register state and return
-  pop ax
-  ret
+    pop di ; Return register state and return
+    pop es
+    pop ds
+    pop si
+    pop bx
+    pop ax
+    ret
 
 ; Syscall 2: Input function to return a string in SI
 getInput:
