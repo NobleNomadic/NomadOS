@@ -19,6 +19,24 @@ shellEntry:
   ; Go to the main shell loop
   jmp shellLoop
 
+; Compare strings in SI and DI, result in AX
+compareStrings:
+  push cx            ; Preserve registers
+  xor ax, ax         ; Default to AX = 0 (false)
+.loop:
+  lodsb              ; Load byte from [SI] into AL, advance SI
+  cmp al, [di]       ; Compare AL with byte at [DI]
+  jne .done          ; If not equal, exit (AX already 0)
+  cmp al, 0          ; Check for null terminator
+  je .equal          ; If both hit null, strings are equal
+  inc di             ; Move to next byte in second string
+  jmp .loop          ; Repeat
+.equal:
+  mov ax, 1          ; Strings match, set AX = 1
+.done:
+  pop cx             ; Restore registers
+  ret
+
 
 ; Commands - load program from disk and run
 clearCommand:
@@ -49,45 +67,43 @@ shellLoop:
   ;CALL_kernel
 
   ; COMMAND CHECKING
-  ; Check for clear command with syscall 3
+  ; Check for clear command
+  push si
+  push di
   mov si, buffer
   mov di, clearCmd
-  mov byte bl, 3
-  ;CALL_kernel
-  ; Reset segment after calling kernel
-  mov bx, 0x2000
-  mov ds, bx
-  mov es, bx
+  call compareStrings
+  pop di
+  pop si
   ; Check AX result
   cmp ax, 1
   je clearCommand
 
-  ; Check for help command with syscall 3
+  ; Check for help command
+  push si
+  push di
   mov si, buffer
   mov di, helpCmd
-  mov byte bl, 3
-  ;CALL_kernel
-  ; Reset segment after calling kernel
-  mov bx, 0x2000
-  mov ds, bx
-  mov es, bx
+  call compareStrings
+  pop di
+  pop si
   ; Check AX result
   cmp ax, 1
   je helpCommand
 
   ; Check for request filesystem data
+  push si
+  push di
   mov si, buffer
   mov di, fsInfoCmd
-  mov byte bl, 3
-  ;CALL_kernel
-  ; Reset segment
-  mov bx, 0x2000
-  mov ds, bx
-  mov es, bx
+  call compareStrings
+  pop di
+  pop si
   ; Check AX result
   cmp ax, 1
   je fsInfoCommand
 
+  push ds
   ; Continue loop
   jmp shellLoop
 
