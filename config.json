@@ -7,54 +7,12 @@
       "sectors": 1,
       "mem": "0x0000:0x7C00"
     },
-    "bootmanage": {
-      "src": "src/boot/bootmanage.asm",
-      "bin": "build/boot/bootmanage.bin",
-      "sector": 2,
-      "sectors": 1,
-      "mem": "0x0000:0x1000"
-    },
     "kernel": {
       "src": "src/kernel/kernel.asm",
       "bin": "build/kernel/kernel.bin",
-      "sector": 3,
-      "sectors": 4,
-      "mem": "0x1000:0x0000"
-    },
-    "nnfsmodule": {
-      "src": "src/modules/nnfs.asm",
-      "bin": "build/modules/nnfs.bin",
-      "sector": 10,
+      "sector": 2,
       "sectors": 4,
       "mem": "0x1000:0x1000"
-    },
-    "testfile": {
-      "src": "src/modules/testfile.asm",
-      "bin": "build/modules/testfile.bin",
-      "sector": 20,
-      "sectors": 1,
-      "mem": "0x2000:0x3000"
-    },
-    "shell": {
-      "src": "src/programs/shell.asm",
-      "bin": "build/programs/shell.bin",
-      "sector": 30,
-      "sectors": 4,
-      "mem": "0x2000:0x0000"
-    },
-    "clearprogram": {
-      "src": "src/programs/clear.asm",
-      "bin": "build/programs/clear.bin",
-      "sector": 31,
-      "sectors": 1,
-      "mem": "0x2000:0x2000"
-    },
-    "helpprogram": {
-      "src": "src/programs/help.asm",
-      "bin": "build/programs/help.bin",
-      "sector": 32,
-      "sectors": 1,
-      "mem": "0x2000:0x2000"
     }
   }
 }

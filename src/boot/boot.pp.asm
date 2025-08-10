@@ -11,52 +11,51 @@ bootEntry:
   mov ds, ax
   mov es, ax
 
-  ; Clear screen by reseting the video mode
+  ; Clear screen by reseting video mode
   mov ah, 0x00
-  mov al, 0x03
+  mov al, 0x02
   int 0x10
 
-  ; Print entry message
+  ; Print boot entry message
   mov si, bootEntryMsg
   call printString
 
-  ; Load next sector into memory
-  ; LOAD_bootmanage
+  ; Load the kernel
+  ; LOAD_kernel
   mov cx, 2
   mov dh, 0
   mov dl, 0x00
   mov bx, 0x1000
-  mov ax, 0x0000
+  mov ax, 0x1000
   mov es, ax
   mov ah, 0x02
-  mov al, 1
+  mov al, 4
   int 0x13
-  ; JUMP_bootmanage
-  jmp 0x0000:0x1000
+  ; JUMP_kernel
+  jmp 0x1000:0x1000
 
-; Print the string stored in SI
 printString:
-  push ax      ; Push used registers
+  push ax ; Preserve used registers
   push si
 .printLoop:
-  lodsb          ; Load next byte into AL
-  or al, al      ;  Check for null terminator
-  jz .done       ; Conditional finish
-  mov ah, 0x0E   ; BIOS tty print
-  int 0x10       ; Call BIOS
+  lodsb          ; Load next byte into al
+  or al, al      ; Check for null terminator
+  jz .done       ; Finish if null
+  mov ah, 0x0E   ; Set BIOS tty print
+  int 0x10       ; Call interupt
   jmp .printLoop ; Continue loop
 .done:
-  pop si       ; Return registers and return
+  pop si ; Return register state and finish
   pop ax
   ret
 
-; Fallback to hang function
+; Backup hang function
 hang:
   jmp $
 
-; Data section
-bootEntryMsg db "[*] Bootable device found", STREND ; Print on boot entry
+; DATA SECTION
+bootEntryMsg db "[*] Bootable device found", STREND
 
-; Pad to 512 bytes with boot sector
+; Pad to 512 byte with boot sector
 times 510 - ($ - $$) db 0
 dw 0xAA55
