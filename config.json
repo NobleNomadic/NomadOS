@@ -12,7 +12,7 @@
       "bin": "build/kernel/kernel.bin",
       "sector": 2,
       "sectors": 4,
-      "mem": "0x1000:0x1000"
+      "mem": "0x1000:0x0000"
     }
   }
 }
