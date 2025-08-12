@@ -20,6 +20,28 @@ bootEntry:
   mov si, bootEntryMsg
   call printString
 
+  ; Setup init systems for kernel
+  ; LOAD_kerneltaskinit
+  mov cx, 6
+  mov dh, 0
+  mov dl, 0x00
+  mov bx, 0x0000
+  mov ax, 0x2000
+  mov es, ax
+  mov ah, 0x02
+  mov al, 1
+  int 0x13
+  ; LOAD_usertaskinit
+  mov cx, 7
+  mov dh, 0
+  mov dl, 0x00
+  mov bx, 0x0000
+  mov ax, 0x3000
+  mov es, ax
+  mov ah, 0x02
+  mov al, 1
+  int 0x13
+
   ; Load the kernel
   ; LOAD_kernel
   mov cx, 2

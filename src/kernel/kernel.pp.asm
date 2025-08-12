@@ -165,9 +165,9 @@ hang:
 
 
 ; DATA SECTION
-currentTask: db 0                   ; 0 = task0, 1 = task = 1
-task0SP:     dw 0                   ; Saved SP for task0
-task1SP:     dw 0                   ; Saved SP for task1
+currentTask db 1                   ; 0 = task0, 1 = task = 1
+task0SP     dw 0                   ; Saved SP for task0
+task1SP     dw 0                   ; Saved SP for task1
 
 ; Strings
 kernelEntryMsg db "[*] Kernel loaded", STREND

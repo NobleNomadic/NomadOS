@@ -13,6 +13,20 @@
       "sector": 2,
       "sectors": 4,
       "mem": "0x1000:0x0000"
+    },
+    "kerneltaskinit": {
+      "src": "src/init/kernelinit.asm",
+      "bin": "build/init/kernelinit.bin",
+      "sector": 6,
+      "sectors": 1,
+      "mem": "0x2000:0x0000"
+    },
+    "usertaskinit": {
+      "src": "src/init/userinit.asm",
+      "bin": "build/init/userinit.bin",
+      "sector": 7,
+      "sectors": 1,
+      "mem": "0x3000:0x0000"
     }
   }
 }

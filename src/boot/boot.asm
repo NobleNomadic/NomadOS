@@ -20,6 +20,10 @@ bootEntry:
   mov si, bootEntryMsg
   call printString
 
+  ; Setup init systems for kernel
+  ;LOAD_kerneltaskinit
+  ;LOAD_usertaskinit
+
   ; Load the kernel
   ;LOAD_kernel
   ;JUMP_kernel
