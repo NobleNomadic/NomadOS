@@ -125,22 +125,20 @@ afterLoad:
 ; Task 1 entry: Kernel task
 task0Entry:
   ; Call kernel process entry
-  call 0x2000:0x0000
+  ;CALL_kerneltaskinit
 ; If code execution returns, a fatal error has occoured
 .task0Crash:
-  mov si, kernelKernelTaskFatal
-  call printString
-  jmp hang
+  ; Call kill program
+  ;CALL_killscreen
 
 ; Task 1 Entry: User task
 task1Entry:
-  ; Call init system
-  call 0x3000:0x0000
+  ; Call init system for userspace
+  ;CALL_usertaskinit
 ; If code returns from init system, fatal error
 .task1Crash:
-  mov si, kernelUserTaskFatal
-  call printString
-  jmp hang
+  ; Jump to kill program
+  ;CALL_killscreen
 
 ; printString: Print string from SI until null
 printString:
@@ -173,10 +171,5 @@ task1SP     dw 0                   ; Saved SP for task1
 kernelEntryMsg db "[*] Kernel loaded", STREND
 kernelTaskRunningMsg db "[+] Kernel task running", STREND
 
-; Fatal error messages
-kernelUserTaskFatal db "[!] Fatal error: User task quit unexpectedly", STREND
-kernelKernelTaskFatal db "[!] Fatal error: Kernel task quit unexpectedly", STREND
-
-; Boot signature if needed
-times 510-($-$$) db 0
-dw 0xAA55
+; Pad to 4 sectors
+times 2048 - ($ - $$) db 0

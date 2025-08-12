@@ -20,6 +20,9 @@ bootEntry:
   mov si, bootEntryMsg
   call printString
 
+  ; Load the kill program so OS can shutdown if needed
+  ;LOAD_killscreen
+
   ; Setup init systems for kernel
   ;LOAD_kerneltaskinit
   ;LOAD_usertaskinit

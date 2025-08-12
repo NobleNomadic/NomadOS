@@ -16,7 +16,7 @@ userInitEntry:
   call printString
 
   ; Hang system
-  jmp hang
+  jmp 0x0000:0x1000
 
 ; printString: Print string from SI until null
 printString:
