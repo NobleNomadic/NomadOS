@@ -11,7 +11,7 @@ shellEntry:
   mov ds, ax
   mov es, ax
 
-.shellLoop:
+shellLoop:
   ; Print shell prompt
   mov si, shellPrompt
   call printString
@@ -20,12 +20,14 @@ shellEntry:
   mov si, inputBuffer
   call getInput
 
-  ; Echo input back
+  ; Check if the command was "clear"
   mov si, inputBuffer
-  call printString
+  mov di, clearCommandString
+  call compareStrings
+  je clearCommand
 
   ; Continue shell loop
-  jmp .shellLoop
+  jmp shellLoop
 
 ; Print null-terminated string at DS:SI using BIOS teletype
 printString:
@@ -104,14 +106,46 @@ getInput:
   pop ax
   ret
 
+; Compare the strings in SI and DI, result in AX
+compareStrings:
+  push cx            ; Preserve registers
+  xor ax, ax         ; Default to AX = 0 (false)
+.loop:
+  lodsb              ; Load byte from [SI] into AL, advance SI
+  cmp al, [di]       ; Compare AL with byte at [DI]
+  jne .done          ; If not equal, exit (AX already 0)
+  cmp al, 0          ; Check for null terminator
+  je .equal          ; If both hit null, strings are equal
+  inc di             ; Move to next byte in second string
+  jmp .loop          ; Repeat
+.equal:
+  mov ax, 1          ; Strings match, set AX = 1
+.done:
+  pop cx             ; Restore registers
+  ret
+
 ; Backup hang function
 hang:
   jmp $
 
-; DATA SECTION
-shellPrompt db "[>]", STREND
 
+; COMMANDS
+clearCommand:
+  ; Clear the screen with BIOS print to reset video mode
+  mov ah, 0x00
+  mov al, 0x03
+  int 0x10
+  jmp shellLoop
+
+
+; DATA SECTION
+; Strings
+shellPrompt db "[>]", STREND
+; Buffer for getting input
 inputBuffer times 256 db 0
+
+; Command names
+clearCommandString db "clear", STREND
 
 ; Pad to 2 sectors (512 bytes each)
 times 1024 - ($ - $$) db 0
