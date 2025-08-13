@@ -34,6 +34,13 @@
       "sector": 8,
       "sectors": 1,
       "mem": "0x3000:0x0000"
+    },
+    "usershell": {
+      "src": "src/programs/shell.asm",
+      "bin": "build/programs/shell.bin",
+      "sector": 20,
+      "sectors": 2,
+      "mem": "0x3000:0x1000"
     }
   }
 }

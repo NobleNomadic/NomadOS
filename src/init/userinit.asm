@@ -15,6 +15,10 @@ userInitEntry:
   mov si, userInitEntryMsg
   call printString
 
+  ; Load the shell into memory
+  ;LOAD_usershell
+  ;CALL_usershell
+
   ; Hang system
   jmp hang
 
@@ -25,7 +29,7 @@ printString:
 printLoop:
   lodsb                             ; AL = [SI++]
   or al, al                         ; Null terminator?
-  jz printDone                      ; Yes → exit
+  jz printDone                      ; Conditional exit
   mov ah, 0x0E                      ; BIOS teletype
   int 0x10                          ; Print AL
   jmp printLoop                     ; Continue
