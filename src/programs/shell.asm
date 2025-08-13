@@ -1,5 +1,5 @@
 ; shell.asm - Simple shell input/output handler
-[org 0x1000]
+[org 0x0000]
 [bits 16]
 
 %define STREND 0x0D, 0x0A, 0x00
@@ -25,6 +25,17 @@ shellLoop:
   mov di, clearCommandString
   call compareStrings
   je clearCommand
+
+  ; Check if the command was "echo"
+  mov si, inputBuffer
+  mov di, echoCommandString
+  call compareStrings
+  je echoCommand
+
+  ; Delay for a bit to prevent overwhelming
+  mov cx, 0xFFFF
+.delay:
+  loop .delay
 
   ; Continue shell loop
   jmp shellLoop
@@ -131,12 +142,14 @@ hang:
 
 ; COMMANDS
 clearCommand:
-  ; Clear the screen with BIOS print to reset video mode
-  mov ah, 0x00
-  mov al, 0x03
-  int 0x10
+  ;LOAD_clearprogram
+  ;CALL_clearprogram
   jmp shellLoop
 
+echoCommand:
+  ;LOAD_echoprogram
+  ;CALL_echoprogram
+  jmp shellLoop
 
 ; DATA SECTION
 ; Strings
@@ -146,6 +159,7 @@ inputBuffer times 256 db 0
 
 ; Command names
 clearCommandString db "clear", STREND
+echoCommandString db "echo", STREND
 
 ; Pad to 2 sectors (512 bytes each)
 times 1024 - ($ - $$) db 0

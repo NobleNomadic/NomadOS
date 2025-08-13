@@ -23,12 +23,9 @@ bootEntry:
   ; Load the kill program so OS can shutdown if needed
   ;LOAD_killscreen
 
-  ; Setup init systems for kernel
-  ;LOAD_kerneltaskinit
-  ;LOAD_usertaskinit
-
-  ; Load the kernel
+  ; Load the kernel and request kernel setup
   ;LOAD_kernel
+  mov bl, 0
   ;JUMP_kernel
 
 printString:

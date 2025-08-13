@@ -6,7 +6,6 @@ It uses a modular kernel design which aims to make the OS as customisable and li
 This is a rewrite of the original project due to the messiness of the OS structure. \
 **Project Goals**
 - Provide a command line to the user
-- Create a kernel which can run multiple controlled processes
 - Build a simple file structure where binary and text programs can be stored on the disk and interacted with
 - Develop a kernel module system where additional code can be loaded into the kernel to provide more functionality
   - Standard library to automate basic functions (print, input, etc)
@@ -27,8 +26,20 @@ This is a rewrite of the original project due to the messiness of the OS structu
 - Create a driver for interacting with a second floppy disk seperate from the main OS disk
 
 ## Structure
-NomadOS uses a microkernel design.
-The kernel itself is a simple process controller, and manages the usage of kernel modules.
-Kernel modules are loaded by the kernel during startup, and can be manually modified while the OS is running.
-Modules are usually libraries which can be called to make syscalls.
-For example, a module may be a library which can have syscalls made to it to automate interaction with a filesystem.
+NomadOS uses a modular kernel design.
+The kernel program itself has 3 very basic system calls.
+- Setup system:              Load user start program and module manager into memory
+- Run kernel module manager: Make a request to the module manager
+- Run user program:          Jump to the code at 0x3000:0x0000
+
+The user start program is typically the shell, and once given control allows the user to type the name of programs to load and run them.
+The programs loaded in user space may also make requests to the module manager to load modules or remove them.
+
+## OS Control Structure
+- Bootloader loads kernel and makes syscall 0 to setup system
+- In the kernel, first user program is loaded and module manager
+- Kernel sends syscall 1 request to itself to run module manager
+- Module manager is run with manager syscall 0 to setup module manager
+- Module manager calls kernel with syscall 2 to run user program
+- User program is loaded and given control of the system
+- User programs will continue to make requests to the module manager through kernel syscall 2

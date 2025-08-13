@@ -32,29 +32,7 @@ bootEntry:
   mov al, 1
   int 0x13
 
-  ; Setup init systems for kernel
-  ; LOAD_kerneltaskinit
-  mov cx, 7
-  mov dh, 0
-  mov dl, 0x00
-  mov bx, 0x0000
-  mov ax, 0x2000
-  mov es, ax
-  mov ah, 0x02
-  mov al, 1
-  int 0x13
-  ; LOAD_usertaskinit
-  mov cx, 8
-  mov dh, 0
-  mov dl, 0x00
-  mov bx, 0x0000
-  mov ax, 0x3000
-  mov es, ax
-  mov ah, 0x02
-  mov al, 1
-  int 0x13
-
-  ; Load the kernel
+  ; Load the kernel and request kernel setup
   ; LOAD_kernel
   mov cx, 2
   mov dh, 0
@@ -65,6 +43,7 @@ bootEntry:
   mov ah, 0x02
   mov al, 4
   int 0x13
+  mov bl, 0
   ; JUMP_kernel
   jmp 0x1000:0x0000
 

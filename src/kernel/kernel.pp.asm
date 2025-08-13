@@ -6,144 +6,75 @@
 
 ; Entry point for kernel - setup the timer
 kernelEntry:
-  cli                              ; Disable interrupts during setup
   ; Setup segment
   mov ax, 0x1000
   mov ds, ax
   mov es, ax
 
-  ; Print the entry message
+  ; Check value of BL - 0 for entry, 1 for module manager program, 2 for user program
+  ; Check for setup function
+  cmp bl, 0
+  je kernelStartup
+
+  ; CHeck if kernel module manager is being requested to run
+  cmp bl, 1
+  je kernelModuleManager
+
+  ; Check if user task is being requested to run
+  cmp bl, 2
+  je userTask
+
+  ; No task requested, fatal
+  ; JUMP_killscreen
+  jmp 0x0000:0x1000
+
+; Kernel entry function
+kernelStartup:
+  ; Print entry message
   mov si, kernelEntryMsg
   call printString
 
-  mov ss, ax                       ; SS = CS (stack segment)
-  mov sp, 0x7FF0                   ; Temporary bootstrap stack
+  ; Load kernel module manager and user task
+  ; LOAD_kernelmodulemanager
+  mov cx, 10
+  mov dh, 0
+  mov dl, 0x00
+  mov bx, 0x0000
+  mov ax, 0x2000
+  mov es, ax
+  mov ah, 0x02
+  mov al, 1
+  int 0x13
+  ; LOAD_userstart
+  mov cx, 20
+  mov dh, 0
+  mov dl, 0x00
+  mov bx, 0x0000
+  mov ax, 0x3000
+  mov es, ax
+  mov ah, 0x02
+  mov al, 2
+  int 0x13
 
-  ; Install the timer
-  xor cx, cx                       ; CX = 0
-  mov es, cx                       ; ES = 0 (IVT segment)
-  mov word [es:0x20], timerHandler ; Set IRQ0 offset
-  mov word [es:0x22], ax           ; Set IRQ0 segment
-  mov ds, ax                       ; Restore DS = CS
-  mov es, ax                       ; Restore ES = CS
+  ; Run kernel module manager
+  mov bl, 1
+  ; JUMP_kernel
+  jmp 0x1000:0x0000
 
-  ; enable IRQ0
-  in  al, 0x21                     ; Read PIC mask
-  and al, 0xFE                     ; Clear bit0 to enable IRQ0
-  out 0x21, al                     ; Write new PIC mask
 
-  ; setup PIT
-  mov al, 0x36                     ; PIT mode: channel0, lobyte/hibyte, mode 3
-  out 0x43, al                     ; Send mode command
-  mov ax, 65535                    ; ~100Hz divisor
-  out 0x40, al                     ; Send low byte
-  mov al, ah                       ; Get high byte
-  out 0x40, al                     ; Send high byte
+; --- TASK REQUESTS ---
+; Run kernel module manager
+kernelModuleManager:
+  ; JUMP_kernelmodulemanager
+  jmp 0x2000:0x0000
 
-  mov byte [currentTask], 0        ; Start with task0
 
-  ; initTask0
-  mov ax, cs                       ; AX = CS
-  mov ss, ax                       ; SS = CS
-  mov sp, 0x2000                   ; Task0 stack pointer
-  push word 0x0200                 ; FLAGS (IF=1)
-  push word ax                     ; CS
-  push word task0Entry             ; IP
-  push word 0                      ; AX
-  push word 0                      ; BX
-  push word 0                      ; CX
-  push word 0                      ; DX
-  mov [task0SP], sp                ; Save SP for task0
+; Run user program
+userTask:
+  ; JUMP_userstart
+  jmp 0x3000:0x0000
 
-  ; initTask1
-  mov ss, ax                       ; SS = CS
-  mov sp, 0x3000                   ; Task1 stack pointer
-  push word 0x0200                 ; FLAGS
-  push word ax                     ; CS
-  push word task1Entry             ; IP
-  push word 0                      ; AX
-  push word 0                      ; BX
-  push word 0                      ; CX
-  push word 0                      ; DX
-  mov [task1SP], sp                ; Save SP for task1
-
-  ; startFirstTask
-  cli                              ; Disable interrupts
-  mov ss, ax                       ; SS = CS
-  mov sp, [task0SP]                ; Load SP for task0
-  pop dx                           ; Restore DX
-  pop cx                           ; Restore CX
-  pop bx                           ; Restore BX
-  pop ax                           ; Restore AX
-  sti                              ; Enable interrupts
-  iret                             ; Jump to task0Entry
-
-; Timer handler
-timerHandler:
-  cli                              ; Disable interrupts
-  push ax                          ; Save AX
-  push bx                          ; Save BX
-  push cx                          ; Save CX
-  push dx                          ; Save DX
-
-  push cs                          ; Save CS to AX
-  pop ax                           ; AX = CS
-  mov ds, ax                       ; DS = CS
-
-  cmp byte [currentTask], 0        ; Is currentTask = 0?
-  je saveTask0                     ; Yes → save task0 SP
-  mov [task1SP], sp                ; Save SP for task1
-  jmp switchTask
-saveTask0:
-  mov [task0SP], sp                ; Save SP for task0
-
-switchTask:
-  xor byte [currentTask], 1        ; Flip between 0 and 1
-
-  cmp byte [currentTask], 0        ; Check which task is active now
-  je loadTask0
-  mov ax, [task1SP]                 ; Load task1 SP
-  mov sp, ax
-  jmp afterLoad
-loadTask0:
-  mov ax, [task0SP]                 ; Load task0 SP
-  mov sp, ax
-afterLoad:
-
-  mov al, 0x20                      ; PIC EOI command
-  out 0x20, al                      ; Send EOI
-
-  pop dx                            ; Restore DX
-  pop cx                            ; Restore CX
-  pop bx                            ; Restore BX
-  pop ax                            ; Restore AX
-
-  sti                               ; Enable interrupts
-  iret                              ; Return to resumed task
-
-; ---- TASKS ----
-; Task 1 entry: Kernel task
-task0Entry:
-  ; Call kernel process entry
-  ; CALL_kerneltaskinit
-  call 0x2000:0x0000
-; If code execution returns, a fatal error has occoured
-.task0Crash:
-  ; Call kill program
-  ; CALL_killscreen
-  call 0x0000:0x1000
-
-; Task 1 Entry: User task
-task1Entry:
-  ; Call init system for userspace
-  ; CALL_usertaskinit
-  call 0x3000:0x0000
-; If code returns from init system, fatal error
-.task1Crash:
-  ; Jump to kill program
-  ; CALL_killscreen
-  call 0x0000:0x1000
-
+; Utility functions
 ; printString: Print string from SI until null
 printString:
   push ax                           ; Save AX
@@ -167,13 +98,8 @@ hang:
 
 
 ; DATA SECTION
-currentTask db 1                   ; 0 = task0, 1 = task = 1
-task0SP     dw 0                   ; Saved SP for task0
-task1SP     dw 0                   ; Saved SP for task1
-
 ; Strings
 kernelEntryMsg db "[*] Kernel loaded", STREND
-kernelTaskRunningMsg db "[+] Kernel task running", STREND
 
 ; Pad to 4 sectors
 times 2048 - ($ - $$) db 0

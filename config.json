@@ -21,26 +21,33 @@
       "sectors": 1,
       "mem": "0x0000:0x1000"
     },
-    "kerneltaskinit": {
-      "src": "src/init/kernelinit.asm",
-      "bin": "build/init/kernelinit.bin",
-      "sector": 7,
+    "kernelmodulemanager": {
+      "src": "src/modules/kernelmodulemanager.asm",
+      "bin": "build/modules/kernelmodulemanager.bin",
+      "sector": 10,
       "sectors": 1,
       "mem": "0x2000:0x0000"
     },
-    "usertaskinit": {
-      "src": "src/init/userinit.asm",
-      "bin": "build/init/userinit.bin",
-      "sector": 8,
-      "sectors": 1,
-      "mem": "0x3000:0x0000"
-    },
-    "usershell": {
+    "userstart": {
       "src": "src/programs/shell.asm",
       "bin": "build/programs/shell.bin",
       "sector": 20,
       "sectors": 2,
-      "mem": "0x3000:0x1000"
+      "mem": "0x3000:0x0000"
+    },
+    "clearprogram": {
+      "src": "src/programs/clear.asm",
+      "bin": "build/programs/clear.bin",
+      "sector": 21,
+      "sectors": 1,
+      "mem": "0x3000:0x2000"
+    },
+    "echoprogram": {
+      "src": "src/programs/echo.asm",
+      "bin": "build/programs/echo.bin",
+      "sector": 22,
+      "sectors": 1,
+      "mem": "0x3000:0x2000"
     }
   }
 }
