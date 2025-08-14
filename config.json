@@ -7,47 +7,19 @@
       "sectors": 1,
       "mem": "0x0000:0x7C00"
     },
-    "kernel": {
-      "src": "src/kernel/kernel.asm",
-      "bin": "build/kernel/kernel.bin",
-      "sector": 2,
-      "sectors": 4,
-      "mem": "0x1000:0x0000"
-    },
     "killscreen": {
       "src": "src/util/killscreen.asm",
       "bin": "build/util/killscreen.bin",
-      "sector": 6,
+      "sector": 2,
       "sectors": 1,
       "mem": "0x0000:0x1000"
     },
-    "kernelmodulemanager": {
-      "src": "src/modules/kernelmodulemanager.asm",
-      "bin": "build/modules/kernelmodulemanager.bin",
-      "sector": 10,
-      "sectors": 1,
-      "mem": "0x2000:0x0000"
-    },
-    "userstart": {
-      "src": "src/programs/shell.asm",
-      "bin": "build/programs/shell.bin",
-      "sector": 20,
-      "sectors": 2,
-      "mem": "0x3000:0x0000"
-    },
-    "clearprogram": {
-      "src": "src/programs/clear.asm",
-      "bin": "build/programs/clear.bin",
-      "sector": 21,
-      "sectors": 1,
-      "mem": "0x3000:0x2000"
-    },
-    "echoprogram": {
-      "src": "src/programs/echo.asm",
-      "bin": "build/programs/echo.bin",
-      "sector": 22,
-      "sectors": 1,
-      "mem": "0x3000:0x2000"
+    "kernel": {
+      "src": "src/kernel/kernel.asm",
+      "bin": "build/kernel/kernel.bin",
+      "sector": 3,
+      "sectors": 4,
+      "mem": "0x1000:0x0000"
     }
   }
 }

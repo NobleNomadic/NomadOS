@@ -23,10 +23,9 @@ bootEntry:
   ; Load the kill program so OS can shutdown if needed
   ;LOAD_killscreen
 
-  ; Load the kernel and request kernel setup
+  ; Load kernel and jump to it
   ;LOAD_kernel
-  mov bl, 0
-  ;JUMP_kernel
+  ;CALL_kernel
 
 printString:
   push ax ; Preserve used registers
