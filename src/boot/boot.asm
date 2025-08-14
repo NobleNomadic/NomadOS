@@ -7,13 +7,13 @@
 ; Entry point
 bootEntry:
   ; Setup segment
-  mov ax, 0x0000
+  xor ax, ax
   mov ds, ax
   mov es, ax
 
   ; Clear screen by reseting video mode
   mov ah, 0x00
-  mov al, 0x02
+  mov al, 0x03
   int 0x10
 
   ; Print boot entry message

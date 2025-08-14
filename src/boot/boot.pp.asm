@@ -7,13 +7,13 @@
 ; Entry point
 bootEntry:
   ; Setup segment
-  mov ax, 0x0000
+  xor ax, ax
   mov ds, ax
   mov es, ax
 
   ; Clear screen by reseting video mode
   mov ah, 0x00
-  mov al, 0x02
+  mov al, 0x03
   int 0x10
 
   ; Print boot entry message
@@ -22,7 +22,7 @@ bootEntry:
 
   ; Load the kill program so OS can shutdown if needed
   ; LOAD_killscreen
-  mov cx, 6
+  mov cx, 2
   mov dh, 0
   mov dl, 0x00
   mov bx, 0x1000
@@ -32,9 +32,9 @@ bootEntry:
   mov al, 1
   int 0x13
 
-  ; Load the kernel and request kernel setup
+  ; Load kernel and jump to it
   ; LOAD_kernel
-  mov cx, 2
+  mov cx, 3
   mov dh, 0
   mov dl, 0x00
   mov bx, 0x0000
@@ -43,9 +43,8 @@ bootEntry:
   mov ah, 0x02
   mov al, 4
   int 0x13
-  mov bl, 0
-  ; JUMP_kernel
-  jmp 0x1000:0x0000
+  ; CALL_kernel
+  call 0x1000:0x0000
 
 printString:
   push ax ; Preserve used registers

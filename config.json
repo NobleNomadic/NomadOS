@@ -20,6 +20,13 @@
       "sector": 3,
       "sectors": 4,
       "mem": "0x1000:0x0000"
+    },
+    "dummymod": {
+      "src": "src/modules/dummy.asm",
+      "bin": "build/modules/dummy.bin",
+      "sector": 11,
+      "sectors": 1,
+      "mem": "0x1000:0x1000"
     }
   }
 }
