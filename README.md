@@ -36,10 +36,8 @@ The user start program is typically the shell, and once given control allows the
 The programs loaded in user space may also make requests to the module manager to load modules or remove them.
 
 ## OS Control Structure
-- Bootloader loads kernel and makes syscall 0 to setup system
-- In the kernel, first user program is loaded and module manager
-- Kernel sends syscall 1 request to itself to run module manager
-- Module manager is run with manager syscall 0 to setup module manager
-- Module manager calls kernel with syscall 2 to run user program
-- User program is loaded and given control of the system
-- User programs will continue to make requests to the module manager through kernel syscall 2
+- Bootloader loads kernel
+- Kernel loads first user program (shell)
+- User program is given control of system
+- Programs can request for certain modules to be loaded through kernel syscalls to provide additional function
+

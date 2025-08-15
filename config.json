@@ -21,12 +21,19 @@
       "sectors": 4,
       "mem": "0x1000:0x0000"
     },
-    "dummymod": {
-      "src": "src/modules/dummy.asm",
-      "bin": "build/modules/dummy.bin",
-      "sector": 11,
+    "shell": {
+      "src": "src/programs/shell.asm",
+      "bin": "build/programs/shell.bin",
+      "sector": 20,
+      "sectors": 2,
+      "mem": "0x2000:0x0000"
+    },
+    "clearprogram": {
+      "src": "src/programs/clear.asm",
+      "bin": "build/programs/clear.bin",
+      "sector": 22,
       "sectors": 1,
-      "mem": "0x1000:0x1000"
+      "mem": "0x2000:0x2000"
     }
   }
 }

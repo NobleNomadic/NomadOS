@@ -37,14 +37,12 @@ kernelEntry:
 kernelSetup:
   mov si, kernelEntryMessage
   call printString
-  ; Example: load module from sector 11 into slot 0 (0x2000:0x0000)
-  mov cl, 11           ; Sector number
-  mov dh, 0            ; Head 0
-  mov bh, 0            ; Slot 0
-  call sysLoadModule
-  jmp 0x2000:0x0000
-  jmp hang
 
+  ; Load user program into memory
+  ;LOAD_shell
+
+  ; Give control to shell
+  ;JUMP_shell
 
 ; Syscall 1: Load module with 2-byte header ID
 ; CL = Disk sector (1-based)
@@ -114,17 +112,17 @@ sysLoadModule:
 ; --- Utility functions ---
 ; Print string in SI
 printString:
-  push ax
+  push ax        ; Preserve used registers
   push si
 .printLoop:
-  lodsb
-  or al, al
-  jz .done
-  mov ah, 0x0E
-  int 0x10
-  jmp .printLoop
+  lodsb          ; Load next byte from SI into AL
+  or al, al      ; Check for null terminator
+  jz .done       ; Finish if null
+  mov ah, 0x0E   ; Setup BIOS tty print
+  int 0x10       ; Call interupt
+  jmp .printLoop ; Continue loop
 .done:
-  pop si
+  pop si         ; Restore registers and return
   pop ax
   ret
 
