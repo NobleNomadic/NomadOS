@@ -21,31 +21,45 @@
       "sectors": 4,
       "mem": "0x1000:0x0000"
     },
+    "floppydrivermodule": {
+      "src": "src/modules/floppydriver.asm",
+      "bin": "build/modules/floppydriver.bin",
+      "sector": 10,
+      "sectors": 1,
+      "mem": "0x1000:0x1000"
+    },
     "shell": {
       "src": "src/programs/shell.asm",
       "bin": "build/programs/shell.bin",
       "sector": 20,
-      "sectors": 2,
+      "sectors": 4,
       "mem": "0x2000:0x0000"
     },
     "clearprogram": {
       "src": "src/programs/clear.asm",
       "bin": "build/programs/clear.bin",
-      "sector": 22,
+      "sector": 24,
       "sectors": 1,
       "mem": "0x2000:0x2000"
     },
     "echoprogram": {
       "src": "src/programs/echo.asm",
       "bin": "build/programs/echo.bin",
-      "sector": 23,
+      "sector": 25,
       "sectors": 1,
       "mem": "0x2000:0x2000"
     },
     "rebootprogram": {
       "src": "src/programs/reboot.asm",
       "bin": "build/programs/reboot.bin",
-      "sector": 24,
+      "sector": 26,
+      "sectors": 1,
+      "mem": "0x2000:0x2000"
+    },
+    "flopprogram": {
+      "src": "src/programs/flop.asm",
+      "bin": "build/programs/flop.bin",
+      "sector": 27,
       "sectors": 1,
       "mem": "0x2000:0x2000"
     }

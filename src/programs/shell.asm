@@ -39,6 +39,12 @@ shellLoop:
   call compareStrings
   je rebootCommand
 
+  ; Check for flop command
+  mov si, inputBuffer
+  mov di, flopCommandString
+  call compareStrings
+  je flopCommand
+
   jmp shellLoop
 
 ; --- Utility functions ---
@@ -159,6 +165,13 @@ rebootCommand:
   ;LOAD_rebootprogram
   ;JUMP_rebootprogram
 
+flopCommand:
+  ; Ensure floppy module is loaded
+  ;LOAD_floppydrivermodule
+  ;LOAD_flopprogram
+  ;CALL_flopprogram
+  jmp shellLoop
+
 ; DATA SECTION
 ; Strings
 shellPromptMessage db "[>]", STREND
@@ -167,9 +180,10 @@ shellPromptMessage db "[>]", STREND
 clearCommandString db "clear", STREND
 echoCommandString db "echo", STREND
 rebootCommandString db "reboot", STREND
+flopCommandString db "flop", STREND
 
 ; Buffer for getting input
 inputBuffer times 256 db 0
 
-; Pad to 2 sectors
-times 1024 - ($ - $$) db 0
+; Pad to 4 sectors
+times 2048 - ($ - $$) db 0

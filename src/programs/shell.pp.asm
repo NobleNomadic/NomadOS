@@ -39,6 +39,12 @@ shellLoop:
   call compareStrings
   je rebootCommand
 
+  ; Check for flop command
+  mov si, inputBuffer
+  mov di, flopCommandString
+  call compareStrings
+  je flopCommand
+
   jmp shellLoop
 
 ; --- Utility functions ---
@@ -146,7 +152,7 @@ hang:
 ; Clear screen program
 clearCommand:
   ; LOAD_clearprogram
-  mov cx, 22
+  mov cx, 24
   mov dh, 0
   mov dl, 0x00
   mov bx, 0x2000
@@ -162,7 +168,7 @@ clearCommand:
 ; Echo program to print message
 echoCommand:
   ; LOAD_echoprogram
-  mov cx, 23
+  mov cx, 25
   mov dh, 0
   mov dl, 0x00
   mov bx, 0x2000
@@ -177,7 +183,7 @@ echoCommand:
 
 rebootCommand:
   ; LOAD_rebootprogram
-  mov cx, 24
+  mov cx, 26
   mov dh, 0
   mov dl, 0x00
   mov bx, 0x2000
@@ -189,6 +195,32 @@ rebootCommand:
   ; JUMP_rebootprogram
   jmp 0x2000:0x2000
 
+flopCommand:
+  ; Ensure floppy module is loaded
+  ; LOAD_floppydrivermodule
+  mov cx, 10
+  mov dh, 0
+  mov dl, 0x00
+  mov bx, 0x1000
+  mov ax, 0x1000
+  mov es, ax
+  mov ah, 0x02
+  mov al, 1
+  int 0x13
+  ; LOAD_flopprogram
+  mov cx, 27
+  mov dh, 0
+  mov dl, 0x00
+  mov bx, 0x2000
+  mov ax, 0x2000
+  mov es, ax
+  mov ah, 0x02
+  mov al, 1
+  int 0x13
+  ; CALL_flopprogram
+  call 0x2000:0x2000
+  jmp shellLoop
+
 ; DATA SECTION
 ; Strings
 shellPromptMessage db "[>]", STREND
@@ -197,9 +229,10 @@ shellPromptMessage db "[>]", STREND
 clearCommandString db "clear", STREND
 echoCommandString db "echo", STREND
 rebootCommandString db "reboot", STREND
+flopCommandString db "flop", STREND
 
 ; Buffer for getting input
 inputBuffer times 256 db 0
 
-; Pad to 2 sectors
-times 1024 - ($ - $$) db 0
+; Pad to 4 sectors
+times 2048 - ($ - $$) db 0
