@@ -34,6 +34,20 @@
       "sector": 22,
       "sectors": 1,
       "mem": "0x2000:0x2000"
+    },
+    "echoprogram": {
+      "src": "src/programs/echo.asm",
+      "bin": "build/programs/echo.bin",
+      "sector": 23,
+      "sectors": 1,
+      "mem": "0x2000:0x2000"
+    },
+    "rebootprogram": {
+      "src": "src/programs/reboot.asm",
+      "bin": "build/programs/reboot.bin",
+      "sector": 24,
+      "sectors": 1,
+      "mem": "0x2000:0x2000"
     }
   }
 }

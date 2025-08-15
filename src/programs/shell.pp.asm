@@ -22,9 +22,22 @@ shellLoop:
 
   ; CHECK COMMANDS
   ; Check for 'clear' command
+  mov si, inputBuffer
   mov di, clearCommandString
   call compareStrings
   je clearCommand
+
+  ; Check for echo command
+  mov si, inputBuffer
+  mov di, echoCommandString
+  call compareStrings
+  je echoCommand
+
+  ; Check for reboot command
+  mov si, inputBuffer
+  mov di, rebootCommandString 
+  call compareStrings
+  je rebootCommand
 
   jmp shellLoop
 
@@ -66,6 +79,7 @@ compareStrings:
 ; Get input into the buffer in SI
 getInput:
   push ax
+  push di
   push si
   mov di, si      ; DI = buffer pointer
 
@@ -119,6 +133,7 @@ getInput:
 
   ; Restore register state and return
   pop si
+  pop di
   pop ax
   ret
 
@@ -144,12 +159,44 @@ clearCommand:
   call 0x2000:0x2000
   jmp shellLoop
 
+; Echo program to print message
+echoCommand:
+  ; LOAD_echoprogram
+  mov cx, 23
+  mov dh, 0
+  mov dl, 0x00
+  mov bx, 0x2000
+  mov ax, 0x2000
+  mov es, ax
+  mov ah, 0x02
+  mov al, 1
+  int 0x13
+  ; CALL_echoprogram
+  call 0x2000:0x2000
+  jmp shellLoop
+
+rebootCommand:
+  ; LOAD_rebootprogram
+  mov cx, 24
+  mov dh, 0
+  mov dl, 0x00
+  mov bx, 0x2000
+  mov ax, 0x2000
+  mov es, ax
+  mov ah, 0x02
+  mov al, 1
+  int 0x13
+  ; JUMP_rebootprogram
+  jmp 0x2000:0x2000
+
 ; DATA SECTION
 ; Strings
 shellPromptMessage db "[>]", STREND
 
 ; Command string names
 clearCommandString db "clear", STREND
+echoCommandString db "echo", STREND
+rebootCommandString db "reboot", STREND
 
 ; Buffer for getting input
 inputBuffer times 256 db 0

@@ -21,9 +21,8 @@ This is a rewrite of the original project due to the messiness of the OS structu
   - read:   Read data from the disk
   - reboot: Reboot system
   - hex:    Print the hex data in a memory location
-  - kmod:   Interact with kernel modules
+  - kmod:   Load kernel modules manually
   - flop:   Read data from an external floppy disk
-- Create a driver for interacting with a second floppy disk seperate from the main OS disk
 
 ## Structure
 NomadOS uses a modular kernel design.
