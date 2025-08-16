@@ -20,9 +20,17 @@ flopEntry:
   mov ds, ax
   mov es, ax
 
-  popa
-  pop ds
-  retf
+  ; Wait for key input
+  mov ah, 0x00
+  int 0x16
+
+  cli             ; disable interrupts
+  xor ax, ax
+  mov ds, ax
+  mov es, ax
+  mov ss, ax
+  mov sp, 0x7C00  ; reset stack to safe place
+  jmp 0xFFFF:0x0000  ; BIOS reset entry point
 
 ; Pad to 1 sector
 times 512 - ($ - $$) db 0

@@ -51,6 +51,13 @@ shellLoop:
   mov di, flopCommandString
   call compareStrings
   je flopCommand
+
+  ; Check for hex command
+  mov si, inputBuffer
+  mov di, hexCommandString
+  call compareStrings
+  je hexCommand
+
   jmp shellLoop
 
 ; --- Utility functions ---
@@ -182,6 +189,11 @@ flopCommand:
   rep stosb
   jmp shellLoop
 
+hexCommand:
+  ;LOAD_hexprogram
+  ;CALL_hexprogram
+  jmp shellLoop
+
 ; DATA SECTION
 ; Strings
 shellPromptMessage db "[>]", STREND
@@ -191,6 +203,7 @@ clearCommandString db "clear", STREND
 echoCommandString db "echo", STREND
 rebootCommandString db "reboot", STREND
 flopCommandString db "flop", STREND
+hexCommandString db "hex", STREND
 
 ; Buffer for getting input
 inputBuffer times 256 db 0

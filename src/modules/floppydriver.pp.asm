@@ -87,7 +87,6 @@ diskIO:
   call printString
 
   ; Use BIOS read sectors to load from disk
-  ; Memory args
   mov ax, 0x2000 ; Segment
   mov es, ax
   mov bx, 0x4000 ; Offset
@@ -97,20 +96,20 @@ diskIO:
   mov dl, 0x01   ; Second floppy drive
   mov cx, 1      ; Sector 1
 
-  ; Call interupt
+  ; Call interrupt
   mov ah, 0x02
   int 0x13
   jc .error
 
-  ; Print the string stored on the disk
   mov ax, 0x2000
   mov ds, ax
   mov es, ax
+  ; Print the string stored on the disk
   mov si, 0x4000
   call printString
-  
-  ; Reset segment
-  mov ax, 0x2000
+
+  ; Restore segments
+  mov ax, 0x1000
   mov ds, ax
   mov es, ax
   ret

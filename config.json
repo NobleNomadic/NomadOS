@@ -54,12 +54,19 @@
       "bin": "build/programs/reboot.bin",
       "sector": 26,
       "sectors": 1,
-      "mem": "0x2000:0x2000"
+      "mem": "0x2000:0x1000"
     },
     "flopprogram": {
       "src": "src/programs/flop.asm",
       "bin": "build/programs/flop.bin",
       "sector": 27,
+      "sectors": 1,
+      "mem": "0x2000:0x2000"
+    },
+    "hexprogram": {
+      "src": "src/programs/hex.asm",
+      "bin": "build/programs/hex.bin",
+      "sector": 28,
       "sectors": 1,
       "mem": "0x2000:0x2000"
     }

@@ -51,6 +51,13 @@ shellLoop:
   mov di, flopCommandString
   call compareStrings
   je flopCommand
+
+  ; Check for hex command
+  mov si, inputBuffer
+  mov di, hexCommandString
+  call compareStrings
+  je hexCommand
+
   jmp shellLoop
 
 ; --- Utility functions ---
@@ -183,14 +190,14 @@ rebootCommand:
   mov cx, 26
   mov dh, 0
   mov dl, 0x00
-  mov bx, 0x2000
+  mov bx, 0x1000
   mov ax, 0x2000
   mov es, ax
   mov ah, 0x02
   mov al, 1
   int 0x13
   ; JUMP_rebootprogram
-  jmp 0x2000:0x2000
+  jmp 0x2000:0x1000
 
 flopCommand:
   ; Save segments before calling external modules
@@ -231,6 +238,21 @@ flopCommand:
   rep stosb
   jmp shellLoop
 
+hexCommand:
+  ; LOAD_hexprogram
+  mov cx, 28
+  mov dh, 0
+  mov dl, 0x00
+  mov bx, 0x2000
+  mov ax, 0x2000
+  mov es, ax
+  mov ah, 0x02
+  mov al, 1
+  int 0x13
+  ; CALL_hexprogram
+  call 0x2000:0x2000
+  jmp shellLoop
+
 ; DATA SECTION
 ; Strings
 shellPromptMessage db "[>]", STREND
@@ -240,6 +262,7 @@ clearCommandString db "clear", STREND
 echoCommandString db "echo", STREND
 rebootCommandString db "reboot", STREND
 flopCommandString db "flop", STREND
+hexCommandString db "hex", STREND
 
 ; Buffer for getting input
 inputBuffer times 256 db 0
