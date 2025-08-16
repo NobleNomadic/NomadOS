@@ -1,44 +1,56 @@
 ; shell.asm - Main loop and user program
 [org 0x0000]
 [bits 16]
-
 %define STREND 0x0D, 0x0A, 0x00
-
 shellEntry:
   ; Setup segment
   mov ax, 0x2000
   mov ds, ax
   mov es, ax
+  
+  ; Setup stack segment for safety
+  mov ss, ax
+  mov sp, 0x1000
 
 ; Main shell loop
 shellLoop:
+  ; Restore segments in case they got corrupted
+  mov ax, 0x2000
+  mov ds, ax
+  mov es, ax
+  
   ; Print prompt
   mov si, shellPromptMessage
   call printString
-
+  
   ; Get input into input buffer
   mov si, inputBuffer
   call getInput
-
+  
   ; CHECK COMMANDS
   ; Check for 'clear' command
   mov si, inputBuffer
   mov di, clearCommandString
   call compareStrings
   je clearCommand
-
+  
   ; Check for echo command
   mov si, inputBuffer
   mov di, echoCommandString
   call compareStrings
   je echoCommand
-
+  
   ; Check for reboot command
   mov si, inputBuffer
   mov di, rebootCommandString 
   call compareStrings
   je rebootCommand
 
+  ; Check for flop command
+  mov si, inputBuffer
+  mov di, flopCommandString
+  call compareStrings
+  je flopCommand
   jmp shellLoop
 
 ; --- Utility functions ---
@@ -51,7 +63,7 @@ printString:
   or al, al      ; Check for null terminator
   jz .done       ; Finish if null
   mov ah, 0x0E   ; Setup BIOS tty print
-  int 0x10       ; Call interupt
+  int 0x10       ; Call interrupt
   jmp .printLoop ; Continue loop
 .done:
   pop si         ; Restore registers and return
@@ -88,14 +100,11 @@ getInput:
   int 0x16
   cmp al, 0x0D    ; Enter key (CR)?
   je .done
-
   cmp al, 0x08    ; Backspace?
   jne .notBackspace
-
   ; Handle backspace if not at start of buffer
   cmp di, inputBuffer
   je .inputLoop   ; If at start, ignore backspace
-
   dec di          ; Move pointer back
 
   ; Erase character on screen (backspace, space, backspace to overwrite)
@@ -106,24 +115,21 @@ getInput:
   int 0x10
   mov al, 0x08
   int 0x10
-  jmp .inputLoop
 
+  jmp .inputLoop
 .notBackspace:
   mov [di], al    ; Store character in buffer
   inc di
-
   ; Echo character
   mov ah, 0x0E
   int 0x10
   jmp .inputLoop
-
 .done:
   mov byte [di], 0x0D    ; Carriage return
   inc di
   mov byte [di], 0x0A    ; Line feed
   inc di
   mov byte [di], 0x00    ; Null terminator
-
   ; Print newline manually
   mov ah, 0x0E
   mov al, 0x0D
@@ -141,9 +147,7 @@ getInput:
 hang:
   jmp $
 
-
 ; --- Commands ---
-; Clear screen program
 clearCommand:
   ; LOAD_clearprogram
   mov cx, 24
@@ -159,7 +163,6 @@ clearCommand:
   call 0x2000:0x2000
   jmp shellLoop
 
-; Echo program to print message
 echoCommand:
   ; LOAD_echoprogram
   mov cx, 25
@@ -188,6 +191,45 @@ rebootCommand:
   int 0x13
   ; JUMP_rebootprogram
   jmp 0x2000:0x2000
+
+flopCommand:
+  ; Save segments before calling external modules
+  push ds
+  push es
+  push ss
+  ; Make sure that floppy driver is loaded
+  ; LOAD_floppydrivermodule
+  mov cx, 10
+  mov dh, 0
+  mov dl, 0x00
+  mov bx, 0x1000
+  mov ax, 0x1000
+  mov es, ax
+  mov ah, 0x02
+  mov al, 1
+  int 0x13
+  ; LOAD_flopprogram
+  mov cx, 27
+  mov dh, 0
+  mov dl, 0x00
+  mov bx, 0x2000
+  mov ax, 0x2000
+  mov es, ax
+  mov ah, 0x02
+  mov al, 1
+  int 0x13
+  ; CALL_flopprogram
+  call 0x2000:0x2000
+  ; Restore segments after external calls
+  pop ss
+  pop es
+  pop ds
+  ; Clear input buffer to prevent corruption
+  mov di, inputBuffer
+  mov cx, 256
+  xor al, al
+  rep stosb
+  jmp shellLoop
 
 ; DATA SECTION
 ; Strings

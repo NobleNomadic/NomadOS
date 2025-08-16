@@ -8,7 +8,7 @@ This is a rewrite of the original project due to the messiness of the OS structu
 - Provide a command line to the user
 - Build a simple file structure where binary and text programs can be stored on the disk and interacted with
 - Build basic kernel modules to add more functionality to the OS
-  - Floppy disk driver for interacting with a second disk for a filesystem
+  - Floppy disk driver for interacting with a second disk for a filesystem - DONE
   - Time module for getting the current time
 - Create a driver for interacting with a second floppy disk seperate from the main OS disk
 - Create a minimal set of command line tools
@@ -18,7 +18,7 @@ This is a rewrite of the original project due to the messiness of the OS structu
   - fetch:  Print system information and ASCII art
   - reboot: Reboot system                                  - DONE
   - hex:    Print the hex data in a memory location
-  - flop:   Interact with files on an external floppy disk
+  - flop:   Interact with files on an external floppy disk - DONE
   - time:   Get current time
 
 ## Structure
