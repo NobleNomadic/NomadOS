@@ -39,12 +39,6 @@ shellLoop:
   call compareStrings
   je rebootCommand
 
-  ; Check for flop command
-  mov si, inputBuffer
-  mov di, flopCommandString
-  call compareStrings
-  je flopCommand
-
   jmp shellLoop
 
 ; --- Utility functions ---
@@ -164,13 +158,6 @@ echoCommand:
 rebootCommand:
   ;LOAD_rebootprogram
   ;JUMP_rebootprogram
-
-flopCommand:
-  ; Ensure floppy module is loaded
-  ;LOAD_floppydrivermodule
-  ;LOAD_flopprogram
-  ;CALL_flopprogram
-  jmp shellLoop
 
 ; DATA SECTION
 ; Strings

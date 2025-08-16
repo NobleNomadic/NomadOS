@@ -17,10 +17,8 @@ This is a rewrite of the original project due to the messiness of the OS structu
   - clear:  Clear the screen                               - DONE
   - fetch:  Print system information and ASCII art
   - reboot: Reboot system                                  - DONE
-  - kmod:   Interact with kernel modules manually
   - hex:    Print the hex data in a memory location
   - flop:   Interact with files on an external floppy disk
-  - write:  Write a string to the file data buffer
   - time:   Get current time
 
 ## Structure
