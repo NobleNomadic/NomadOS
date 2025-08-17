@@ -28,6 +28,13 @@
       "sectors": 1,
       "mem": "0x1000:0x1000"
     },
+    "timemodule": {
+      "src": "src/modules/timemodule.asm",
+      "bin": "build/modules/timemodule.bin",
+      "sector": 11,
+      "sectors": 1,
+      "mem": "0x1000:0x2000"
+    },
     "shell": {
       "src": "src/programs/shell.asm",
       "bin": "build/programs/shell.bin",
@@ -67,6 +74,20 @@
       "src": "src/programs/hex.asm",
       "bin": "build/programs/hex.bin",
       "sector": 28,
+      "sectors": 1,
+      "mem": "0x2000:0x2000"
+    },
+    "fetchprogram": {
+      "src": "src/programs/fetch.asm",
+      "bin": "build/programs/fetch.bin",
+      "sector": 29,
+      "sectors": 1,
+      "mem": "0x2000:0x2000"
+    },
+    "timeprogram": {
+      "src": "src/programs/time.asm",
+      "bin": "build/programs/time.bin",
+      "sector": 30,
       "sectors": 1,
       "mem": "0x2000:0x2000"
     }

@@ -20,10 +20,11 @@ flopEntry:
   mov ds, ax
   mov es, ax
 
-  ; Wait for key input
+  ; Wait for key input before resetting
   mov ah, 0x00
   int 0x16
 
+  ; Reset system
   cli             ; disable interrupts
   xor ax, ax
   mov ds, ax

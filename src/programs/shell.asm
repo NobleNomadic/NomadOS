@@ -58,6 +58,18 @@ shellLoop:
   call compareStrings
   je hexCommand
 
+  ; Check for fetch command
+  mov si, inputBuffer
+  mov di, fetchCommandString
+  call compareStrings
+  je fetchCommand
+
+  ; Check for time command
+  mov si, inputBuffer
+  mov di, timeCommandString
+  call compareStrings
+  je timeCommand
+
   jmp shellLoop
 
 ; --- Utility functions ---
@@ -194,6 +206,17 @@ hexCommand:
   ;CALL_hexprogram
   jmp shellLoop
 
+fetchCommand:
+  ;LOAD_fetchprogram
+  ;CALL_fetchprogram
+  jmp shellLoop
+
+timeCommand:
+  ;LOAD_timemodule
+  ;LOAD_timeprogram
+  ;CALL_timeprogram
+  jmp shellLoop
+
 ; DATA SECTION
 ; Strings
 shellPromptMessage db "[>]", STREND
@@ -204,6 +227,8 @@ echoCommandString db "echo", STREND
 rebootCommandString db "reboot", STREND
 flopCommandString db "flop", STREND
 hexCommandString db "hex", STREND
+fetchCommandString db "fetch", STREND
+timeCommandString db "time", STREND
 
 ; Buffer for getting input
 inputBuffer times 256 db 0

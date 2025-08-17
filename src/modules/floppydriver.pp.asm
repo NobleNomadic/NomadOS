@@ -21,7 +21,7 @@ driverEntry:
   cmp bl, 1
   je .diskIOHandler
   
-  ; Unknown syscall - return error or just return
+  ; No syscall made, return
   jmp .return
 
 ; Handler functions
@@ -225,7 +225,7 @@ getInput:
 
 ; DATA SECTION
 ; Strings
-loadedMessage db "[*] Floppy driver loaded", STREND
+loadedMessage db "[+] Floppy driver loaded", STREND
 readMessage db "[*] Running read operation", STREND
 writeMessage db "[*] Running write operation", STREND
 diskOperationFailErr db "[-] Disk operation failed", STREND
