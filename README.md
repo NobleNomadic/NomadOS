@@ -12,7 +12,7 @@ It uses a modular/micro kernel design which aims to make the OS as customisable 
 - Create a driver for interacting with a second floppy disk seperate from the main OS disk
 - Create a minimal set of command line tools
   - echo:   Display a string                               - DONE
-  - help:   Help menu for commands
+  - help:   Help menu for commands                         - DONE
   - clear:  Clear the screen                               - DONE
   - fetch:  Print system information and ASCII art         - DONE
   - reboot: Reboot system                                  - DONE

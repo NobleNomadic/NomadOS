@@ -70,6 +70,12 @@ shellLoop:
   call compareStrings
   je timeCommand
 
+  ; Check for help command
+  mov si, inputBuffer
+  mov di, helpCommandString
+  call compareStrings
+  je helpCommand
+
   jmp shellLoop
 
 ; --- Utility functions ---
@@ -305,6 +311,21 @@ timeCommand:
   call 0x2000:0x2000
   jmp shellLoop
 
+helpCommand:
+  ; LOAD_helpprogram
+  mov cx, 31
+  mov dh, 0
+  mov dl, 0x00
+  mov bx, 0x2000
+  mov ax, 0x2000
+  mov es, ax
+  mov ah, 0x02
+  mov al, 1
+  int 0x13
+  ; CALL_helpprogram
+  call 0x2000:0x2000
+  jmp shellLoop
+
 ; DATA SECTION
 ; Strings
 shellPromptMessage db "[>]", STREND
@@ -317,6 +338,7 @@ flopCommandString db "flop", STREND
 hexCommandString db "hex", STREND
 fetchCommandString db "fetch", STREND
 timeCommandString db "time", STREND
+helpCommandString db "help", STREND
 
 ; Buffer for getting input
 inputBuffer times 256 db 0

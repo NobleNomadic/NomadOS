@@ -90,6 +90,13 @@
       "sector": 30,
       "sectors": 1,
       "mem": "0x2000:0x2000"
+    },
+    "helpprogram": {
+      "src": "src/programs/help.asm",
+      "bin": "build/programs/help.bin",
+      "sector": 31,
+      "sectors": 1,
+      "mem": "0x2000:0x2000"
     }
   }
 }
