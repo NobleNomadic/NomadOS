@@ -1,10 +1,9 @@
-; echo.asm - Repeat a message to stdout
+; echo.asm - Echo a simple message
 [org 0x2000]
 [bits 16]
 
-%define STREND
+%define STREND 0x0D, 0x0A, 0x00
 
-; Entry
 echoEntry:
   pusha
   push ds
@@ -14,29 +13,34 @@ echoEntry:
   mov ds, ax
   mov es, ax
 
-  ; Print prompt with syscall 1 to kernel
-  mov si, shellPrompt ; String to print
-  mov byte bl, 1      ; Syscall 1
-  ;CALL_kernel
-
-  ; Get input into buffer with syscall 2  
-  mov si, buffer ; Buffer to get input into
-  mov byte bl, 2 ; Syscall 2 for input
-  ;CALL_kernel
-
-  ; Echo the buffer back to screen with syscall 1
-  mov si, buffer
-  mov byte bl, 1
-  ;CALL_kernel
+  ; Print message
+  mov si, echoMessage
+  call printString
 
   ; Return to caller
-  popa
   pop ds
+  popa
   retf
+ 
+; --- Utility functions ---
+; Print string in SI
+printString:
+  push ax        ; Preserve used registers
+  push si
+.printLoop:
+  lodsb          ; Load next byte from SI into AL
+  or al, al      ; Check for null terminator
+  jz .done       ; Finish if null
+  mov ah, 0x0E   ; Setup BIOS tty print
+  int 0x10       ; Call interupt
+  jmp .printLoop ; Continue loop
+.done:
+  pop si         ; Restore registers and return
+  pop ax
+  ret
 
 ; DATA SECTION
-buffer times 256 db 0 ; Buffer for input
-shellPrompt db "[>] Enter text", STREND ; Prompt before input
+echoMessage db "[*] Success", STREND
 
 ; Pad to 1 sector
 times 512 - ($ - $$) db 0

@@ -1,9 +1,8 @@
-; clear.asm - Clear screen with BIOS reset video mode
+; clear.asm - Clear the screen with BIOS interupt to reset video mode
 [org 0x2000]
 [bits 16]
 
-; Entry point
-clearEntry:
+entry:
   pusha
   push ds
 
@@ -17,9 +16,10 @@ clearEntry:
   mov al, 0x03
   int 0x10
 
-  ; Return to caller across segment
+  ; Return to caller
   pop ds
   popa
   retf
 
+; Pad to 1 sector
 times 512 - ($ - $$) db 0
